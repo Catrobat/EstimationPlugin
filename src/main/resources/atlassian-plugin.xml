@@ -1,32 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
 <atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
-    <plugin-info>
-        <description>${project.description}</description>
-        <version>${project.version}</version>
-        <vendor name="${project.organization.name}" url="${project.organization.url}" />
-        <param name="plugin-icon">images/pluginIcon.png</param>
-        <param name="plugin-logo">images/pluginLogo.png</param>
-    </plugin-info>
-
-    <!-- add our i18n resource -->
-    <resource type="i18n" name="i18n" location="estimationplugin"/>
-    
-    <!-- add our web resources -->
-    <web-resource key="estimationplugin-resources" name="estimationplugin Web Resources">
-        <dependency>com.atlassian.auiplugin:ajs</dependency>
-        
-        <resource type="download" name="estimationplugin.css" location="/css/estimationplugin.css"/>
-        <resource type="download" name="estimationplugin.js" location="/js/estimationplugin.js"/>
-        <resource type="download" name="images/" location="/images"/>
-
-        <context>estimationplugin</context>
-    </web-resource>
-    
-    <!-- publish our component -->
-    <component key="myPluginComponent" class="org.catrobat.estimationplugin.MyPluginComponentImpl" public="true">
-        <interface>org.catrobat.estimationplugin.MyPluginComponent</interface>
-    </component>
-    
-    <!-- import from the product container -->
-    <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />
-    
+  <plugin-info>
+    <description>${project.description}</description>
+    <version>${project.version}</version>
+    <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+    <param name="plugin-icon">images/pluginIcon.png</param>
+    <param name="plugin-logo">images/pluginLogo.png</param>
+  </plugin-info>
+  <!-- add our i18n resource -->
+  <resource type="i18n" name="i18n" location="estimationplugin"/>
+  <!-- add our web resources -->
+  <web-resource key="estimationplugin-resources" name="estimationplugin Web Resources">
+    <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <resource type="download" name="estimationplugin.css" location="/css/estimationplugin.css"/>
+    <resource type="download" name="estimationplugin.js" location="/js/estimationplugin.js"/>
+    <resource type="download" name="images/" location="/images"/>
+    <context>estimationplugin</context>
+  </web-resource>
+  <!-- publish our component -->
+  <component key="myPluginComponent" class="org.catrobat.estimationplugin.MyPluginComponentImpl" public="true">
+    <interface>org.catrobat.estimationplugin.MyPluginComponent</interface>
+  </component>
+  <servlet name="myPluginServlet" class="org.catrobat.estimationplugin.MyPluginServlet" key="test">
+    <url-pattern>/test</url-pattern>
+  </servlet>
+  <!-- import from the product container -->
+  <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties"/>
+  <component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer" filter=""/>
+  <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager" filter=""/>
+  <component-import key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider" filter=""/>
+  <component-import key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory" filter=""/>
 </atlassian-plugin>
