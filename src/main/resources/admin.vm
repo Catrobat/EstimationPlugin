@@ -14,12 +14,22 @@
                    <div id="project-options" data-suggestions="$projectSugg"></div>
               </div>
               <div class="field-group">
-                   <label for="name">Name:</label>
-                   <input type="text" id="name" name="name" class="text">
+                   <label for="name">#Programmers:</label>
+                   <input type="text" id="programmers" name="name" class="text">
               </div>
               <div class="field-group">
-                   <label for="age">Age:</label>
-                   <input type="text" id="age" name="age" class="text">
+                   <label for="name">Based on:</label>
+                   <input type="text" id="based" name="name" class="text" style="max-width:125px">
+                   <select type="text" id="based-select" name="name" class="text" style="max-width:125px">
+                        <option>Months</option>
+                   </select>
+              </div>
+              <div class="field-group aui-field-datepicker">
+                    <label for="duedate">Due Date</label>
+                    <input class="text medium-field" id="duedate" name="duedate" type="text" value="">
+                    <a href="#" id="duedate-trigger" title="Select a date">
+                        <span class="icon-default aui-icon aui-icon-small aui-iconfont-calendar">Select a date</span>
+                    </a>
               </div>
               <div class="field-group">
                   <input type="submit" value="Save" class="button">
