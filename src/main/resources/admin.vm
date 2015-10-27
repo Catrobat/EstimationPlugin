@@ -2,9 +2,17 @@
   <head>
     <title>My Admin</title>
     <meta name="decorator" content="atl.admin">
+    <script type="text/javascript" src="/jira/plugins/servlet/js/estimationplugin.js">alert("hello");</script>
   </head>
   <body>
+
       <form id="admin" class="aui" action="" method="POST">
+              <div class="field-group" >
+                   <label>Project: </label>
+                   <input data-container-class="project-ss" type="text" class="project-field" value="10001"
+                          id="project" name="pid"/>
+                   <div id="project-options" data-suggestions="$projectSugg"></div>
+              </div>
               <div class="field-group">
                    <label for="name">Name:</label>
                    <input type="text" id="name" name="name" class="text">
@@ -15,7 +23,8 @@
               </div>
               <div class="field-group">
                   <input type="submit" value="Save" class="button">
+                  <a href="${req.contextPath}/browse/${id}" class="cancel">Cancel</a>
               </div>
-          </form>
+      </form>
   </body>
 </html>
