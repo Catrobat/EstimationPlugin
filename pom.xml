@@ -16,7 +16,8 @@
         <dependency>
             <groupId>com.atlassian.jira</groupId>
             <artifactId>jira-api</artifactId>
-            <version>${jira.version}</version>
+            <!--<version>${jira.version}</version>-->
+            <version>6.4.1</version>
             <scope>provided</scope>
         </dependency>
         <!-- Add dependency on jira-core if you want access to JIRA implementation classes as well as the sanctioned API. -->
