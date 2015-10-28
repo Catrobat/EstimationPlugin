@@ -31,4 +31,142 @@
   <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager" filter=""/>
   <component-import key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider" filter=""/>
   <component-import key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory" filter=""/>
+  <report name="Estimation Report" i18n-name-key="estimation-report.name" key="estimation-report" class="org.catrobat.estimationplugin.EstimationReport">
+    <description key="estimation-report.description">The Estimation Report Plugin</description>
+    <resource name="view" type="velocity" location="/templates/reports/estimation-report/view.vm"/>
+    <resource name="i18n" type="i18n" location="EstimationReport"/>
+    <label key="estimation-report.label"></label>
+    <properties>
+        <property>
+            <key>projectid</key>
+            <name>estimation-report.projectid.name</name>
+            <description>estimation-report.projectid.description</description>
+            <type>filterprojectpicker</type>
+        </property>
+        <property>
+            <key>projectidnofilter</key>
+            <name>estimation-report.projectid.name</name>
+            <description>estimation-report.projectid.description</description>
+            <type>select</type>
+            <values class="com.atlassian.jira.portal.ProjectValuesGenerator"/>
+        </property>
+        <property>
+            <key>numprog</key>
+            <name>estimation-report.numprog</name>
+            <description>estimation-report.numprog.description</description>
+            <type>long</type>
+            <default>3</default>
+        </property>
+        <property>
+            <key>ldap</key>
+            <name>estimation-report.ldap</name>
+            <description>estimation-report.ldap.description</description>
+            <type>user</type>
+        </property>
+        <property>
+            <key>include</key>
+            <name>estimation-report.include</name>
+            <description>estimation-report.include.description</description>
+            <type>select</type>
+            <values class="org.catrobat.estimationplugin.CustomValueGenerator"/>
+        </property>
+        <property>
+            <key>basedon</key>
+            <name>estimation-report.basedon</name>
+            <description>estimation-report.basedon.description</description>
+            <type>select</type>
+            <!--<values>
+                <value>
+                    <key>months</key>
+                    <value>Months</value>
+                </value>
+                <value>
+                    <key>tickets</key>
+                    <value>Tickets</value>
+                </value>
+                <value>
+                    <key>key.with.default</key>
+                    <default>Tickets</default>
+                </value>
+            </values>-->
+        </property>
+        <property>
+            <key>basedonvalue</key>
+            <name>estimation-report.basedonvalue</name>
+            <description>estimation-report.basedonvalue.description</description>
+            <type>long</type>
+        </property>
+        <property>
+            <key>studis</key>
+            <name>estimation-report.studis</name>
+            <description>estimation-report.studis.description</description>
+            <type>checkbox</type>
+        </property>
+        <property>
+            <key>seniors</key>
+            <name>estimation-report.seniors</name>
+            <description>estimation-report.seniors.description</description>
+            <type>checkbox</type>
+        </property>
+        <property>
+            <key>startDate</key>
+            <name>estimation-report.startdate</name>
+            <description>estimation-report.startdate.description</description>
+            <type>date</type>
+        </property>
+        <property>
+            <key>endDate</key>
+            <name>estimation-report.enddate</name>
+            <description>estimation-report.enddate.description</description>
+            <type>date</type>
+        </property>
+        <property>
+            <key>deviation</key>
+            <name>estimation-report.deviation</name>
+            <description>estimation-report.deviation.description</description>
+            <type>long</type>
+        </property>
+        <property>
+            <key>methods</key>
+            <name>estimation-report.methods</name>
+            <description>estimation-report.methods.description</description>
+            <type>multiselect</type>
+        </property>
+        <property>
+            <key>versionId</key>
+            <name>common.concepts.version</name>
+            <description>report.timetracking.version.description</description>
+            <type>select</type>
+            <values class="com.atlassian.jira.portal.VersionOptionalValuesGenerator"/>
+        </property>
+        <property>
+            <key>sortingOrder</key>
+            <name>report.timetracking.sortingorder</name>
+            <description>report.timetracking.sortingorder.description</description>
+            <type>select</type>
+            <values class="com.atlassian.jira.portal.SortingValuesGenerator"/>
+        </property>
+        <property>
+            <key>interval</key>
+            <name>estimation-report.interval</name>
+            <description>estimation-report.interval.description</description>
+            <type>long</type>
+            <default>3</default>
+        </property>
+        <property>
+            <key>filterid</key>
+            <name>report.singlelevelgroupby.filterId</name>
+            <description>report.singlelevelgroupby.filterId.description</description>
+            <type>filterpicker</type>
+            <i18n>false</i18n>
+        </property>
+        <property>
+            <key>mapper</key>
+            <name>report.singlelevelgroupby.mapper</name>
+            <description>report.singlelevelgroupby.mapper.description</description>
+            <type>select</type>
+            <values class="com.atlassian.jira.issue.statistics.FilterStatisticsValuesGenerator" />
+        </property>
+    </properties>
+  </report>
 </atlassian-plugin>
