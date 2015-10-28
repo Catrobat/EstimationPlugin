@@ -1,5 +1,7 @@
 package org.catrobat.estimationplugin;
 
+import com.atlassian.jira.datetime.DateTimeFormatter;
+import com.atlassian.jira.datetime.DateTimeFormatterFactory;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.plugin.report.impl.AbstractReport;
 import com.atlassian.jira.user.ApplicationUser;
@@ -33,23 +35,23 @@ public class EstimationReport extends AbstractReport {
     private Collection<Date> dates = new ArrayList<Date>();
     private final SearchProvider searchProvider;
     private final OutlookDateManager outlookDateManager;
+    private final DateTimeFormatter formatter;
     private final ProjectManager projectManager;
     private final IssueManager issueManager;
     private final I18nHelper helper;
-    //private final User remoteUser;
 
     public EstimationReport(SearchProvider searchProvider, OutlookDateManager outlookDateManager,
-                            ProjectManager projectManager, I18nHelper helper, IssueManager issueManager) {
+                            ProjectManager projectManager, I18nHelper helper, IssueManager issueManager,
+                            DateTimeFormatter formatter) {
         this.searchProvider = searchProvider;
         this.outlookDateManager = outlookDateManager;
         this.projectManager = projectManager;
         this.helper = helper;
         this.issueManager = issueManager;
-        //this.remoteUser = remoteUser;
+        this.formatter = formatter;
     }
 
     public String generateReportHtml(ProjectActionSupport action, Map params) throws Exception {
-        //User remoteUser = ApplicationUsers.toDirectoryUser(action.getLoggedInApplicationUser());
         ApplicationUser remoteUser = action.getLoggedInApplicationUser();
         I18nHelper i18nBean = helper;
         Long projectId = ParameterUtils.getLongParam(params, "selectedProjectId");
@@ -82,7 +84,7 @@ public class EstimationReport extends AbstractReport {
         velocityParams.put("outlookDate", outlookDateManager.getOutlookDate(i18nBean.getLocale()));
         velocityParams.put("projectName", projectManager.getProjectObj(projectId).getName());
         velocityParams.put("interval", interval);
-        long issue = issueManager.getIssueCount();
+        long issue = issueManager.getIssueCountForProject(projectId);
         return descriptor.getHtml("view", velocityParams);
     }
 

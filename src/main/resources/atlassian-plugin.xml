@@ -48,14 +48,14 @@
             <name>estimation-report.projectid.name</name>
             <description>estimation-report.projectid.description</description>
             <type>select</type>
-            <values class="com.atlassian.jira.portal.ProjectValuesGenerator"/>
+            <values class="org.catrobat.estimationplugin.ProjectValuesGenerator"/>
         </property>
         <property>
             <key>numprog</key>
             <name>estimation-report.numprog</name>
             <description>estimation-report.numprog.description</description>
             <type>long</type>
-            <default>3</default>
+            <default>1</default>
         </property>
         <property>
             <key>ldap</key>
@@ -67,7 +67,7 @@
             <key>include</key>
             <name>estimation-report.include</name>
             <description>estimation-report.include.description</description>
-            <type>select</type>
+            <type>multiselect</type>
             <values class="org.catrobat.estimationplugin.CustomValueGenerator"/>
         </property>
         <property>
@@ -75,6 +75,7 @@
             <name>estimation-report.basedon</name>
             <description>estimation-report.basedon.description</description>
             <type>select</type>
+            <values class="org.catrobat.estimationplugin.EstimationParamValuesGenerator" />
             <!--<values>
                 <value>
                     <key>months</key>
@@ -130,7 +131,8 @@
             <key>methods</key>
             <name>estimation-report.methods</name>
             <description>estimation-report.methods.description</description>
-            <type>multiselect</type>
+            <type>long</type>
+            <!--<type>multiselect</type>-->
         </property>
         <property>
             <key>versionId</key>
