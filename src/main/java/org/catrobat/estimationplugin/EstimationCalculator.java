@@ -19,8 +19,8 @@ public class EstimationCalculator {
     private final ApplicationUser user;
     private long maxCount = 0;
 
-    private Collection<Long> openIssueCounts = new ArrayList<Long>();
     private Collection<Date> dates = new ArrayList<Date>();
+    private Collection<Long> openIssueCounts = new ArrayList<Long>();
 
     public EstimationCalculator(ProjectManager projectManager, SearchProvider searchProvider, ApplicationUser user) {
         this.projectManager = projectManager;
@@ -28,14 +28,18 @@ public class EstimationCalculator {
         this.user = user;
     }
 
-    public int calculateBasedOnTotalTime(long projectid, Date start, Date end) {
+    public int calculateBasedOnTotalTime(Long projectid, Date start, Date end, Long interval) {
         Project project = projectManager.getProjectObj(projectid);
-
         return 0;
     }
 
-    public Map<String, Object> getDataOfCalculation() {
+    public Map<String, Object> getDataOfCalculation(Date startDate, Date endDate, Long interval, Long projectId)
+            throws SearchException {
         Map<String, Object> data = new HashMap<String, Object>();
+        getIssueCount(startDate, endDate, interval, projectId);
+        data.put("openIssueCounts", openIssueCounts);
+        data.put("dates", dates);
+        data.put("macCount", maxCount);
         return data;
     }
 
@@ -45,7 +49,7 @@ public class EstimationCalculator {
         return searchProvider.searchCount(query, user);
     }
 
-    private void getIssueCount(Date startDate, Date endDate, Long interval, Long projectId) throws SearchException {
+    public void getIssueCount(Date startDate, Date endDate, Long interval, Long projectId) throws SearchException {
         long intervalValue = interval.longValue() * DateUtils.DAY_MILLIS;
         Date newStartDate;
         long count = 0;
