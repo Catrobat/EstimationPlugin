@@ -22,15 +22,51 @@ public class EstimationCalculator {
     private Collection<Date> dates = new ArrayList<Date>();
     private Collection<Long> openIssueCounts = new ArrayList<Long>();
 
+    private float ticketsPerDay;
+
     public EstimationCalculator(ProjectManager projectManager, SearchProvider searchProvider, ApplicationUser user) {
         this.projectManager = projectManager;
         this.searchProvider = searchProvider;
         this.user = user;
     }
 
+    public void calculateTicketsPerDay()
+    {
+        ticketsPerDay = 0.2f;
+    }
+
+    public int uncertainty()
+    {
+        return 2;
+    }
+
     public int calculateBasedOnTotalTime(Long projectid, Date start, Date end, Long interval) {
         Project project = projectManager.getProjectObj(projectid);
         return 0;
+    }
+
+    public Map<String, Object> calculateOutputParams(Long projectId) throws SearchException
+    {
+        calculateTicketsPerDay();
+        int uncertainty = uncertainty();
+
+        Date today = new Date();
+        Calendar epochStart = Calendar.getInstance();
+        epochStart.set(1970, 01, 01);
+        Date startDate = epochStart.getTime();
+        long openIssues = getOpenIssueCount(startDate, today, projectId);
+        float daysToFinish = openIssues / ticketsPerDay;
+        int daysToFinishRounded = Math.round(daysToFinish);
+        Calendar finishDate = Calendar.getInstance();
+        finishDate.setTime(today);
+        finishDate.add(Calendar.DATE, daysToFinishRounded);
+
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("openIssues", openIssues);
+        data.put("finishDate", finishDate.getTime());
+        data.put("uncertainty", uncertainty);
+
+        return data;
     }
 
     public Map<String, Object> getDataOfCalculation(Date startDate, Date endDate, Long interval, Long projectId)

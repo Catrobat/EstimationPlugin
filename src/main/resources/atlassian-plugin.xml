@@ -31,123 +31,121 @@
   <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager" filter=""/>
   <component-import key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider" filter=""/>
   <component-import key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory" filter=""/>
-  <report name="Estimation Report" i18n-name-key="estimation-report.name" key="estimation-report" class="org.catrobat.estimationplugin.EstimationReport">
+  <report name="Estimation Report: Prognosis" i18n-name-key="estimation-report.name" key="estimation-report" class="org.catrobat.estimationplugin.EstimationReport">
     <description key="estimation-report.description">The Estimation Report Plugin</description>
     <resource name="view" type="velocity" location="/templates/reports/estimation-report/view.vm"/>
     <resource name="i18n" type="i18n" location="EstimationReport"/>
-    <label key="estimation-report.label"></label>
+    <label key="estimation-report.label"/>
     <properties>
-        <property>
-            <key>projectid</key>
-            <name>estimation-report.projectid.name</name>
-            <description>estimation-report.projectid.description</description>
-            <type>filterprojectpicker</type>
-        </property>
-        <property>
-            <key>projectidnofilter</key>
-            <name>estimation-report.projectid.name</name>
-            <description>estimation-report.projectid.description</description>
-            <type>select</type>
-            <values class="org.catrobat.estimationplugin.ProjectValuesGenerator"/>
-        </property>
-        <property>
-            <key>numprog</key>
-            <name>estimation-report.numprog</name>
-            <description>estimation-report.numprog.description</description>
-            <type>long</type>
-            <default>1</default>
-        </property>
-        <property>
-            <key>ldap</key>
-            <name>estimation-report.ldap</name>
-            <description>estimation-report.ldap.description</description>
-            <type>user</type>
-        </property>
-        <property>
-            <key>include</key>
-            <name>estimation-report.include</name>
-            <description>estimation-report.include.description</description>
-            <type>multiselect</type>
-            <values class="org.catrobat.estimationplugin.CustomValueGenerator"/>
-        </property>
-        <property>
-            <key>basedon</key>
-            <name>estimation-report.basedon</name>
-            <description>estimation-report.basedon.description</description>
-            <type>select</type>
-            <values class="org.catrobat.estimationplugin.EstimationParamValuesGenerator" />
-            <!--<values>
+      <property>
+        <key>projectid</key>
+        <name>estimation-report.projectid.name</name>
+        <description>estimation-report.projectid.description</description>
+        <type>filterprojectpicker</type>
+      </property>
+      <!--<property>
+        <key>projectidnofilter</key>
+        <name>estimation-report.projectid.name</name>
+        <description>estimation-report.projectid.description</description>
+        <type>select</type>
+        <values class="org.catrobat.estimationplugin.ProjectValuesGenerator"/>
+      </property>-->
+      <property>
+        <key>numprog</key>
+        <name>estimation-report.numprog</name>
+        <description>estimation-report.numprog.description</description>
+        <type>long</type>
+        <default>1</default>
+      </property>
+      <property>
+        <key>ldap</key>
+        <name>estimation-report.ldap</name>
+        <description>estimation-report.ldap.description</description>
+        <type>user</type>
+      </property>
+      <property>
+        <key>include</key>
+        <name>estimation-report.include</name>
+        <description>estimation-report.include.description</description>
+        <type>multiselect</type>
+        <values class="org.catrobat.estimationplugin.CustomValueGenerator"/>
+      </property>
+      <property>
+        <key>timeframe</key>
+        <name>estimation-report.timeframe</name>
+        <description>estimation-report.timeframe.description</description>
+        <type>hidden</type>
+      </property>
+      <property>
+        <key>timeframe2</key>
+        <name>estimation-report.timeframe2</name>
+        <description>estimation-report.timeframe2.description</description>
+        <type>type_unknown</type>
+      </property>
+      <property>
+        <key>basedon</key>
+        <name>estimation-report.basedon</name>
+        <description>estimation-report.basedon.description</description>
+        <type>select</type>
+        <values class="org.catrobat.estimationplugin.EstimationParamValuesGenerator"/>
+      </property>
+      <property>
+        <key>startDate</key>
+        <name>estimation-report.startdate</name>
+        <description>estimation-report.startdate.description</description>
+        <type>date</type>
+        <default>today</default>
+      </property>
+      <property>
+        <key>endDate</key>
+        <name>estimation-report.enddate</name>
+        <description>estimation-report.enddate.description</description>
+        <type>date</type>
+        <values class="org.catrobat.estimationplugin.DateDefaultValueGenerator" />
+      </property>
+      <property>
+        <key>ticketsorcost</key>
+        <name>estimation-report.ticketsorcost</name>
+        <description>estimation-report.basedon.ticketsorcost</description>
+        <type>select</type>
+        <values>
                 <value>
-                    <key>months</key>
-                    <value>Months</value>
+                    <key>cost</key>
+                    <value>Cost</value>
                 </value>
                 <value>
                     <key>tickets</key>
                     <value>Tickets</value>
                 </value>
-                <value>
-                    <key>key.with.default</key>
-                    <default>Tickets</default>
-                </value>
-            </values>-->
-        </property>
-        <property>
-            <key>basedonvalue</key>
-            <name>estimation-report.basedonvalue</name>
-            <description>estimation-report.basedonvalue.description</description>
-            <type>long</type>
-        </property>
-        <property>
-            <key>studis</key>
-            <name>estimation-report.studis</name>
-            <description>estimation-report.studis.description</description>
-            <type>checkbox</type>
-        </property>
-        <property>
-            <key>seniors</key>
-            <name>estimation-report.seniors</name>
-            <description>estimation-report.seniors.description</description>
-            <type>checkbox</type>
-        </property>
-        <property>
-            <key>startDate</key>
-            <name>estimation-report.startdate</name>
-            <description>estimation-report.startdate.description</description>
-            <type>date</type>
-        </property>
-        <property>
-            <key>endDate</key>
-            <name>estimation-report.enddate</name>
-            <description>estimation-report.enddate.description</description>
-            <type>date</type>
-        </property>
-        <property>
-            <key>deviation</key>
-            <name>estimation-report.deviation</name>
-            <description>estimation-report.deviation.description</description>
-            <type>long</type>
-        </property>
-        <property>
-            <key>methods</key>
-            <name>estimation-report.methods</name>
-            <description>estimation-report.methods.description</description>
-            <type>long</type>
-            <!--<type>multiselect</type>-->
-        </property>
-        <property>
-            <key>versionId</key>
-            <name>common.concepts.version</name>
-            <description>report.timetracking.version.description</description>
-            <type>select</type>
-            <values class="com.atlassian.jira.portal.VersionOptionalValuesGenerator"/>
-        </property>
-        <property>
-            <key>sortingOrder</key>
-            <name>report.timetracking.sortingorder</name>
-            <description>report.timetracking.sortingorder.description</description>
-            <type>select</type>
-            <values class="com.atlassian.jira.portal.SortingValuesGenerator"/>
-        </property>
+            </values>
+      </property>
+      <property>
+        <key>studis</key>
+        <name>estimation-report.studis</name>
+        <description>estimation-report.studis.description</description>
+        <type>checkbox</type>
+      </property>
+      <property>
+        <key>seniors</key>
+        <name>estimation-report.seniors</name>
+        <description>estimation-report.seniors.description</description>
+        <type>checkbox</type>
+      </property>
+      <!--
+      <property>
+        <key>deviation</key>
+        <name>estimation-report.deviation</name>
+        <description>estimation-report.deviation.description</description>
+        <type>long</type>
+      </property>
+      <property>
+        <key>methods</key>
+        <name>estimation-report.methods</name>
+        <description>estimation-report.methods.description</description>
+        <type>long</type>
+      </property>
+      -->
+      <!--
         <property>
             <key>interval</key>
             <name>estimation-report.interval</name>
@@ -169,6 +167,32 @@
             <type>select</type>
             <values class="com.atlassian.jira.issue.statistics.FilterStatisticsValuesGenerator" />
         </property>
+      -->
     </properties>
+  </report>
+  <report name="Estimation Plugin Backward" i18n-name-key="estimation-plugin-backward.name" key="estimation-plugin-backward" class="org.catrobat.jira.reports.EstimationPluginBackward">
+    <description key="estimation-plugin-backward.description">The Estimation Plugin Backward Plugin</description>
+    <resource name="view" type="velocity" location="/templates/reports/estimation-plugin-backward/view.vm"/>
+    <resource name="i18n" type="i18n" location="EstimationPluginBackward"/>
+    <label key="estimation-plugin-backward.label"></label>
+    <!-- the properties of this report which the user must select before running it -->
+    <!-- Uncomment and edit properties...
+    <properties>
+        <property>
+            <key>versionId</key>
+            <name>common.concepts.version</name>
+            <description>report.timetracking.version.description</description>
+            <type>select</type>
+            <values class="com.atlassian.jira.portal.VersionOptionalValuesGenerator"/>
+        </property>
+        <property>
+            <key>sortingOrder</key>
+            <name>report.timetracking.sortingorder</name>
+            <description>report.timetracking.sortingorder.description</description>
+            <type>select</type>
+            <values class="com.atlassian.jira.portal.SortingValuesGenerator"/>
+        </property>
+    </properties>
+    -->
   </report>
 </atlassian-plugin>
