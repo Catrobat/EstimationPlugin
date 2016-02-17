@@ -51,9 +51,8 @@ public class EstimationReport extends AbstractReport {
         Long numprog = ParameterUtils.getLongParam(params, "numprog");
 
         EstimationCalculator estimationCalculator = new EstimationCalculator(projectManager, searchProvider, remoteUser);
-        Map<String, Object> data = estimationCalculator.calculateOutputParams(projectId);
+        Map<String, Object> velocityParams = estimationCalculator.calculateOutputParams(projectId);
 
-        Map<String, Object> velocityParams = new HashMap<String, Object>();
         velocityParams.put("startDate", startDate);
         velocityParams.put("endDate", endDate);
         velocityParams.put("maxHeight", new Integer(MAX_HEIGHT));
@@ -68,9 +67,6 @@ public class EstimationReport extends AbstractReport {
         velocityParams.put("probability", new Float(0));
         velocityParams.put("deviation", new Float(0));
 
-        velocityParams.put("finishDate", data.get("finishDate"));
-        velocityParams.put("openIssues", data.get("openIssues"));
-        velocityParams.put("uncertainty", data.get("uncertainty"));
         return descriptor.getHtml("view", velocityParams);
     }
 

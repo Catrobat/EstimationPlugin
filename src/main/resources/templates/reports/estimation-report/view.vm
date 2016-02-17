@@ -17,7 +17,7 @@ $i18n.getText('estimation-report.for') $countMember $i18n.getText('estimation-re
 $i18n.getText('estimation-report.for') $comparisonMethod $i18n.getText('estimation-report.comparisonmethod')
 </p>
 <p>
-Project is expected to finish on: $finishDate (currently having $openIssues openIssues).
+Project is expected to finish on: $finishDate (currently having $openIssues openIssues with $openCost Cost).
 This is with an uncertainty of +/- $uncertainty weeks.
 </p>
 <br />

@@ -1,12 +1,16 @@
 package org.catrobat.estimationplugin;
 
-import com.atlassian.core.util.DateUtils;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchProvider;
+import com.atlassian.jira.issue.search.SearchResults;
+import com.atlassian.jira.jql.builder.JqlClauseBuilder;
 import com.atlassian.jira.jql.builder.JqlQueryBuilder;
+import com.atlassian.jira.jql.parser.JqlParseException;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.query.Query;
 
 import java.util.*;
@@ -24,10 +28,15 @@ public class EstimationCalculator {
 
     private float ticketsPerDay;
 
+    private List<String> issuesToBeFinished = new ArrayList<String>();
+
     public EstimationCalculator(ProjectManager projectManager, SearchProvider searchProvider, ApplicationUser user) {
         this.projectManager = projectManager;
         this.searchProvider = searchProvider;
         this.user = user;
+        // TODO: change initialisation to Admin
+        issuesToBeFinished.add("Open");
+        issuesToBeFinished.add("In Progress");
     }
 
     public void calculateTicketsPerDay()
@@ -45,7 +54,7 @@ public class EstimationCalculator {
         return 0;
     }
 
-    public Map<String, Object> calculateOutputParams(Long projectId) throws SearchException
+    public Map<String, Object> calculateOutputParams(Long projectId) throws SearchException, JqlParseException
     {
         calculateTicketsPerDay();
         int uncertainty = uncertainty();
@@ -54,7 +63,8 @@ public class EstimationCalculator {
         Calendar epochStart = Calendar.getInstance();
         epochStart.set(1970, 01, 01);
         Date startDate = epochStart.getTime();
-        long openIssues = getOpenIssueCount(startDate, today, projectId);
+        long openIssues = getOpenIssueCount(projectId);
+        long openCost = getOpenIssueCost(projectId);
         float daysToFinish = openIssues / ticketsPerDay;
         int daysToFinishRounded = Math.round(daysToFinish);
         Calendar finishDate = Calendar.getInstance();
@@ -63,43 +73,53 @@ public class EstimationCalculator {
 
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("openIssues", openIssues);
+        data.put("openCost", openCost);
         data.put("finishDate", finishDate.getTime());
         data.put("uncertainty", uncertainty);
 
         return data;
     }
 
-    public Map<String, Object> getDataOfCalculation(Date startDate, Date endDate, Long interval, Long projectId)
-            throws SearchException {
-        Map<String, Object> data = new HashMap<String, Object>();
-        getIssueCount(startDate, endDate, interval, projectId);
-        data.put("openIssueCounts", openIssueCounts);
-        data.put("dates", dates);
-        data.put("macCount", maxCount);
-        return data;
-    }
-
-    private long getOpenIssueCount(Date startDate, Date endDate, Long projectId) throws SearchException {
+    private Query getOpenIssueQuery(Long projectId) {
         JqlQueryBuilder queryBuilder = JqlQueryBuilder.newBuilder();
-        Query query = queryBuilder.where().createdBetween(startDate, endDate).and().project(projectId).buildQuery();
-        return searchProvider.searchCount(query, user);
+
+        if (issuesToBeFinished.size() == 0) {
+            return queryBuilder.buildQuery();
+        }
+
+        ListIterator<String> iterator = issuesToBeFinished.listIterator();
+        JqlClauseBuilder clause = queryBuilder.where().project(projectId).and().status().eq(iterator.next());
+        while(iterator.hasNext()) {
+            clause = clause.or().status().eq(iterator.next());
+        }
+        Query query = clause.buildQuery();
+        return  query;
     }
 
-    public void getIssueCount(Date startDate, Date endDate, Long interval, Long projectId) throws SearchException {
-        long intervalValue = interval.longValue() * DateUtils.DAY_MILLIS;
-        Date newStartDate;
-        long count = 0;
-        while (startDate.before(endDate)) {
-            newStartDate = new Date(startDate.getTime() + intervalValue);
-            if (newStartDate.after(endDate))
-                count = getOpenIssueCount(startDate, endDate, projectId);
-            else
-                count = getOpenIssueCount(startDate, newStartDate, projectId);
-            if (maxCount < count)
-                maxCount = count;
-            openIssueCounts.add(new Long(count));
-            dates.add(startDate);
-            startDate = newStartDate;
+    private long getOpenIssueCost(Long projectId) throws JqlParseException, SearchException {
+        Query query = getOpenIssueQuery(projectId);
+        //Query query = queryBuilder.where().createdBetween(startDate, endDate).and().project(projectId).buildQuery();
+        //Collector<>
+        //JqlQueryParser queryParser = ComponentAccessor.getComponent(JqlQueryParser.class);
+        //Query query = queryParser.parseQuery("status=Backlog OR status=\"In Development\"");
+        //TODO maybe implement with collector
+        SearchResults searchResults = searchProvider.search(query, user, PagerFilter.getUnlimitedFilter());
+        List<Issue> issues = searchResults.getIssues();
+        ListIterator<Issue> issueIterator = issues.listIterator();
+        long sumEstimates = 0;
+        while (issueIterator.hasNext()) {
+            Issue currentIssue = issueIterator.next();
+            if (currentIssue.getEstimate() != null) {
+                //Change to custom field
+                //currentIssue.getCustomFieldValue("")
+                sumEstimates += currentIssue.getEstimate();
+            }
         }
+        return sumEstimates;
+    }
+
+    private long getOpenIssueCount(Long projectId) throws SearchException {
+        Query query = getOpenIssueQuery(projectId);
+        return searchProvider.searchCount(query, user);
     }
 }
