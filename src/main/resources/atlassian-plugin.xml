@@ -63,14 +63,14 @@
         <description>estimation-report.ldap.description</description>
         <type>user</type>
       </property>
-      <property>
+      <!--<property>
         <key>include</key>
         <name>estimation-report.include</name>
         <description>estimation-report.include.description</description>
         <type>multiselect</type>
         <values class="org.catrobat.estimationplugin.CustomValueGenerator"/>
-      </property>
-      <property>
+      </property>-->
+      <!--<property>
         <key>timeframe</key>
         <name>estimation-report.timeframe</name>
         <description>estimation-report.timeframe.description</description>
@@ -81,7 +81,7 @@
         <name>estimation-report.timeframe2</name>
         <description>estimation-report.timeframe2.description</description>
         <type>type_unknown</type>
-      </property>
+      </property>-->
       <property>
         <key>basedon</key>
         <name>estimation-report.basedon</name>
@@ -89,20 +89,18 @@
         <type>select</type>
         <values class="org.catrobat.estimationplugin.EstimationParamValuesGenerator"/>
       </property>
-      <property>
+      <!--<property>
         <key>startDate</key>
         <name>estimation-report.startdate</name>
         <description>estimation-report.startdate.description</description>
         <type>date</type>
-        <default>today</default>
       </property>
       <property>
         <key>endDate</key>
         <name>estimation-report.enddate</name>
         <description>estimation-report.enddate.description</description>
         <type>date</type>
-        <values class="org.catrobat.estimationplugin.DateDefaultValueGenerator" />
-      </property>
+      </property>-->
       <property>
         <key>ticketsorcost</key>
         <name>estimation-report.ticketsorcost</name>
@@ -119,7 +117,7 @@
                 </value>
             </values>
       </property>
-      <property>
+      <!--<property>
         <key>studis</key>
         <name>estimation-report.studis</name>
         <description>estimation-report.studis.description</description>
@@ -130,7 +128,7 @@
         <name>estimation-report.seniors</name>
         <description>estimation-report.seniors.description</description>
         <type>checkbox</type>
-      </property>
+      </property>-->
       <!--
       <property>
         <key>deviation</key>

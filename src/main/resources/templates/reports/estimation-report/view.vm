@@ -18,7 +18,7 @@ $i18n.getText('estimation-report.for') $comparisonMethod $i18n.getText('estimati
 </p>
 <p>
 Project is expected to finish on: $finishDate (currently having $openIssues openIssues with $openCost Cost).
-This is with an uncertainty of +/- $uncertainty weeks.
+This is with an uncertainty of +/- $uncertainty weeks. Whole Project TicketsPerDay $ticketsPerDay .
 </p>
 <br />
 <!--<table style="width: 100%; border: 0; background-color: lightgrey">

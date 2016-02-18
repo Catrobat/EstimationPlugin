@@ -46,15 +46,15 @@ public class EstimationReport extends AbstractReport {
         ApplicationUser remoteUser = action.getLoggedInApplicationUser();
         I18nHelper i18nBean = helper;
         Long projectId = ParameterUtils.getLongParam(params, "selectedProjectId");
-        Date startDate = formatter.parse(ParameterUtils.getStringParam(params, "startDate"));
-        Date endDate = formatter.parse(ParameterUtils.getStringParam(params, "endDate"));
+        //Date startDate = formatter.parse(ParameterUtils.getStringParam(params, "startDate"));
+        //Date endDate = formatter.parse(ParameterUtils.getStringParam(params, "endDate"));
         Long numprog = ParameterUtils.getLongParam(params, "numprog");
 
         EstimationCalculator estimationCalculator = new EstimationCalculator(projectManager, searchProvider, remoteUser);
         Map<String, Object> velocityParams = estimationCalculator.calculateOutputParams(projectId);
 
-        velocityParams.put("startDate", startDate);
-        velocityParams.put("endDate", endDate);
+        //velocityParams.put("startDate", startDate);
+        //velocityParams.put("endDate", endDate);
         velocityParams.put("maxHeight", new Integer(MAX_HEIGHT));
         velocityParams.put("outlookDate", outlookDateManager.getOutlookDate(i18nBean.getLocale()));
 
@@ -62,8 +62,8 @@ public class EstimationReport extends AbstractReport {
         velocityParams.put("filter", "TESTVAL");
         velocityParams.put("countMember", numprog);
         velocityParams.put("comparisonMethod", "STANDARD");
-        velocityParams.put("resStartDate", startDate);
-        velocityParams.put("resEndDate", endDate);
+        //velocityParams.put("resStartDate", startDate);
+        //velocityParams.put("resEndDate", endDate);
         velocityParams.put("probability", new Float(0));
         velocityParams.put("deviation", new Float(0));
 
@@ -72,30 +72,30 @@ public class EstimationReport extends AbstractReport {
 
     public void validate(ProjectActionSupport action, Map params) {
         I18nHelper i18nBean = helper;
-        Date startDate = ParameterUtils.getDateParam(params, "startDate", i18nBean.getLocale());
-        Date endDate = ParameterUtils.getDateParam(params, "endDate", i18nBean.getLocale());
+        //Date startDate = ParameterUtils.getDateParam(params, "startDate", i18nBean.getLocale());
+        //Date endDate = ParameterUtils.getDateParam(params, "endDate", i18nBean.getLocale());
         Long numprog = ParameterUtils.getLongParam(params, "numprog");
         Long projectId = ParameterUtils.getLongParam(params, "selectedProjectId");
-        OutlookDate outlookDate = outlookDateManager.getOutlookDate(i18nBean.getLocale());
+        //OutlookDate outlookDate = outlookDateManager.getOutlookDate(i18nBean.getLocale());
 
-        Date today = new Date();
+        //Date today = new Date();
 
         DateTimeFormatter dateTimeFormatter = formatterFactory.formatter().forLoggedInUser();
         //DateTimeFormatter dateTimeFormatter = DateTimeFormatter
 
-        if (startDate == null || !outlookDate.isDatePickerDate(outlookDate.formatDMY(startDate)))
+        /*if (startDate == null || !outlookDate.isDatePickerDate(outlookDate.formatDMY(startDate)))
             action.addError("startDate", action.getText("estimation-report.startdate.required"));
         // TODO: check startdate in future && enddate)
         if (startDate != null && startDate.compareTo(today) >= 0)
             action.addError("startDate", action.getText("estimation-report.startdate.future"));
         if (endDate == null || !outlookDate.isDatePickerDate(outlookDate.formatDMY(endDate)))
             action.addError("endDate", action.getText("estimation-report.enddate.required"));
+        if (startDate != null && endDate != null && endDate.before(startDate)) {
+            action.addError("endDate", action.getText("estimation-report.before.startdate"));
+        }*/
         if (numprog == null || numprog.longValue() <= 0)
             action.addError("interval", action.getText("estimation-report.interval.invalid"));
         if (projectId == null)
             action.addError("selectedProjectId", action.getText("estimation-report.projectid.invalid"));
-        if (startDate != null && endDate != null && endDate.before(startDate)) {
-            action.addError("endDate", action.getText("estimation-report.before.startdate"));
-        }
     }
 }
