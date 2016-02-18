@@ -19,10 +19,7 @@
     <context>estimationplugin</context>
   </web-resource>
   <!-- publish our component -->
-  <component key="myPluginComponent" class="org.catrobat.estimationplugin.MyPluginComponentImpl" public="true">
-    <interface>org.catrobat.estimationplugin.MyPluginComponent</interface>
-  </component>
-  <servlet name="myPluginServlet" class="org.catrobat.estimationplugin.MyPluginServlet" key="test">
+  <servlet name="myPluginServlet" class="org.catrobat.estimationplugin.admin.MyPluginServlet" key="test">
     <url-pattern>/test</url-pattern>
   </servlet>
   <!-- import from the product container -->
@@ -31,7 +28,7 @@
   <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager" filter=""/>
   <component-import key="loginUriProvider" interface="com.atlassian.sal.api.auth.LoginUriProvider" filter=""/>
   <component-import key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory" filter=""/>
-  <report name="Estimation Report: Prognosis" i18n-name-key="estimation-report.name" key="estimation-report" class="org.catrobat.estimationplugin.EstimationReport">
+  <report name="Estimation Report: Prognosis" i18n-name-key="estimation-report.name" key="estimation-report" class="org.catrobat.estimationplugin.reports.EstimationReport">
     <description key="estimation-report.description">The Estimation Report Plugin</description>
     <resource name="view" type="velocity" location="/templates/reports/estimation-report/view.vm"/>
     <resource name="i18n" type="i18n" location="EstimationReport"/>
@@ -48,7 +45,7 @@
         <name>estimation-report.projectid.name</name>
         <description>estimation-report.projectid.description</description>
         <type>select</type>
-        <values class="org.catrobat.estimationplugin.ProjectValuesGenerator"/>
+        <values class="org.catrobat.estimationplugin.valuegenerator.ProjectValuesGenerator"/>
       </property>-->
       <property>
         <key>numprog</key>
@@ -68,7 +65,7 @@
         <name>estimation-report.include</name>
         <description>estimation-report.include.description</description>
         <type>multiselect</type>
-        <values class="org.catrobat.estimationplugin.CustomValueGenerator"/>
+        <values class="org.catrobat.estimationplugin.valuegenerator.CustomValueGenerator"/>
       </property>-->
       <!--<property>
         <key>timeframe</key>
@@ -87,7 +84,7 @@
         <name>estimation-report.basedon</name>
         <description>estimation-report.basedon.description</description>
         <type>select</type>
-        <values class="org.catrobat.estimationplugin.EstimationParamValuesGenerator"/>
+        <values class="org.catrobat.estimationplugin.valuegenerator.EstimationParamValuesGenerator"/>
       </property>
       <!--<property>
         <key>startDate</key>
@@ -168,7 +165,7 @@
       -->
     </properties>
   </report>
-  <report name="Estimation Plugin Backward" i18n-name-key="estimation-plugin-backward.name" key="estimation-plugin-backward" class="org.catrobat.jira.reports.EstimationPluginBackward">
+  <report name="Estimation Plugin Backward" i18n-name-key="estimation-plugin-backward.name" key="estimation-plugin-backward" class="org.catrobat.estimationplugin.reports.EstimationPluginBackward">
     <description key="estimation-plugin-backward.description">The Estimation Plugin Backward Plugin</description>
     <resource name="view" type="velocity" location="/templates/reports/estimation-plugin-backward/view.vm"/>
     <resource name="i18n" type="i18n" location="EstimationPluginBackward"/>

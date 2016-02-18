@@ -1,4 +1,4 @@
-package org.catrobat.estimationplugin;
+package org.catrobat.estimationplugin.valuegenerator;
 
 import com.atlassian.configurable.ValuesGenerator;
 import com.atlassian.jira.component.ComponentAccessor;

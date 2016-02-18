@@ -1,4 +1,4 @@
-package org.catrobat.estimationplugin;
+package org.catrobat.estimationplugin.admin;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.project.Project;

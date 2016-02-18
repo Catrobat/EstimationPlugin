@@ -1,4 +1,4 @@
-package org.catrobat.estimationplugin;
+package org.catrobat.estimationplugin.reports;
 
 import com.atlassian.jira.datetime.DateTimeFormatter;
 import com.atlassian.jira.datetime.DateTimeFormatterFactory;
@@ -11,12 +11,10 @@ import com.atlassian.jira.issue.search.SearchProvider;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.util.I18nHelper;
 import com.atlassian.jira.util.ParameterUtils;
-import com.atlassian.jira.web.util.OutlookDate;
 import com.atlassian.jira.web.util.OutlookDateManager;
 import org.apache.log4j.Logger;
+import org.catrobat.estimationplugin.calc.EstimationCalculator;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 public class EstimationReport extends AbstractReport {

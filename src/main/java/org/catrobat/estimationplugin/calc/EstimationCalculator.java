@@ -1,4 +1,4 @@
-package org.catrobat.estimationplugin;
+package org.catrobat.estimationplugin.calc;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.CustomFieldManager;
