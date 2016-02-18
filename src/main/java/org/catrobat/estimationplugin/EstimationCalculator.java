@@ -1,6 +1,9 @@
 package org.catrobat.estimationplugin;
 
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchProvider;
 import com.atlassian.jira.issue.search.SearchResults;
@@ -27,6 +30,7 @@ public class EstimationCalculator {
 
     private List<String> openIssuesStatus = new ArrayList<String>();
     private List<String> finishedIssuesStatus = new ArrayList<String>();
+    private CustomField estimationField;
 
     public EstimationCalculator(ProjectManager projectManager, SearchProvider searchProvider, ApplicationUser user) {
         this.projectManager = projectManager;
@@ -36,6 +40,8 @@ public class EstimationCalculator {
         openIssuesStatus.add("Open");
         openIssuesStatus.add("In Progress");
         finishedIssuesStatus.add("Done");
+        CustomFieldManager customFieldManager = ComponentAccessor.getCustomFieldManager();
+        estimationField = customFieldManager.getCustomFieldObjectByName("Estimated Effort");
     }
 
     public void calculateTicketsPerDay(Long projectId) throws SearchException
@@ -142,9 +148,12 @@ public class EstimationCalculator {
         while (issueIterator.hasNext()) {
             Issue currentIssue = issueIterator.next();
             if (currentIssue.getEstimate() != null) {
-                //Change to custom field
-                //currentIssue.getCustomFieldValue("")
-                sumEstimates += currentIssue.getEstimate();
+                // TODO: check type
+                if (currentIssue.getCustomFieldValue(estimationField) != null && currentIssue.getCustomFieldValue(estimationField) instanceof Double) {
+                    Double test = (Double) currentIssue.getCustomFieldValue(estimationField);
+                    long estimate = Math.round(test);
+                    sumEstimates += estimate;
+                }
             }
         }
         return sumEstimates;
