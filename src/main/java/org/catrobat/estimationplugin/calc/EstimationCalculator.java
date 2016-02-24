@@ -3,6 +3,7 @@ package org.catrobat.estimationplugin.calc;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.customfields.option.Option;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchProvider;
@@ -31,6 +32,7 @@ public class EstimationCalculator {
     private List<String> openIssuesStatus = new ArrayList<String>();
     private List<String> finishedIssuesStatus = new ArrayList<String>();
     private CustomField estimationField;
+    private long defaultEstimate;
 
     public EstimationCalculator(ProjectManager projectManager, SearchProvider searchProvider, ApplicationUser user) {
         this.projectManager = projectManager;
@@ -42,6 +44,7 @@ public class EstimationCalculator {
         finishedIssuesStatus.add("Closed");
         CustomFieldManager customFieldManager = ComponentAccessor.getCustomFieldManager();
         estimationField = customFieldManager.getCustomFieldObjectByName("Estimated Effort");
+        defaultEstimate = 5;
     }
 
     public void calculateTicketsPerDay(Long projectId) throws SearchException
@@ -51,7 +54,7 @@ public class EstimationCalculator {
 
     public int uncertainty()
     {
-        return 2;
+        return 7;
     }
 
     public int calculateBasedOnTotalTime(Long projectid, Date start, Date end, Long interval) {
@@ -149,12 +152,13 @@ public class EstimationCalculator {
         long sumEstimates = 0;
         while (issueIterator.hasNext()) {
             Issue currentIssue = issueIterator.next();
-            if (currentIssue.getEstimate() != null) {
-                // TODO: check type
-                if (currentIssue.getCustomFieldValue(estimationField) != null && currentIssue.getCustomFieldValue(estimationField) instanceof Double) {
-                    Double test = (Double) currentIssue.getCustomFieldValue(estimationField);
-                    long estimate = Math.round(test);
+            if (currentIssue.getCustomFieldValue(estimationField) != null && currentIssue.getCustomFieldValue(estimationField) instanceof Option) {
+                String value = ((Option) currentIssue.getCustomFieldValue(estimationField)).getValue();
+                try {
+                    long estimate = Long.parseLong(value);
                     sumEstimates += estimate;
+                }catch(NumberFormatException nfe) {
+                    sumEstimates += defaultEstimate;
                 }
             }
         }
