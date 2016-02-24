@@ -144,58 +144,43 @@ public class EstimationCalculator {
         return  query;
     }
 
-    // TODO: generalise and combine with getOpenIssueSMLMap
-    private Map<String, Long> getOpenIssueCostMap(Long projectId) throws SearchException {
-        Query query = getOpenIssueQuery(projectId);
+    private Map<String, Long> getMapForQueryForCustomField(Query query, CustomField customField) throws SearchException {
         SearchResults searchResults = searchProvider.search(query, user, PagerFilter.getUnlimitedFilter());
         List<Issue> issues = searchResults.getIssues();
         ListIterator<Issue> issueIterator = issues.listIterator();
-        Map<String, Long> smlMap = new HashMap<String, Long>();
+        Map<String, Long> map = new HashMap<String, Long>();
         while (issueIterator.hasNext()) {
             Issue currentIssue = issueIterator.next();
-            if (currentIssue.getCustomFieldValue(estimationField) != null && currentIssue.getCustomFieldValue(estimationField) instanceof Option) {
-                String value = ((Option) currentIssue.getCustomFieldValue(estimationField)).getValue();
-                smlMap.putIfAbsent(value, new Long(0));
-                smlMap.put(value, smlMap.get(value) + 1);
+            if (currentIssue.getCustomFieldValue(customField) != null && currentIssue.getCustomFieldValue(customField) instanceof Option) {
+                String value = ((Option) currentIssue.getCustomFieldValue(customField)).getValue();
+                map.putIfAbsent(value, new Long(0));
+                map.put(value, map.get(value) + 1);
             }
         }
-        return smlMap;
+        return map;
+    }
+
+    private Map<String, Long> getOpenIssueCostMap(Long projectId) throws SearchException {
+        Query query = getOpenIssueQuery(projectId);
+        return getMapForQueryForCustomField(query, estimationField);
     }
 
     private Map<String, Long> getOpenIssueSMLMap(Long projectId) throws SearchException {
         Query query = getOpenIssueQuery(projectId);
-        SearchResults searchResults = searchProvider.search(query, user, PagerFilter.getUnlimitedFilter());
-        List<Issue> issues = searchResults.getIssues();
-        ListIterator<Issue> issueIterator = issues.listIterator();
-        Map<String, Long> smlMap = new HashMap<String, Long>();
-        while (issueIterator.hasNext()) {
-            Issue currentIssue = issueIterator.next();
-            if (currentIssue.getCustomFieldValue(estimationSMLField) != null && currentIssue.getCustomFieldValue(estimationSMLField) instanceof Option) {
-                String value = ((Option) currentIssue.getCustomFieldValue(estimationSMLField)).getValue();
-                smlMap.putIfAbsent(value, new Long(0));
-                smlMap.put(value, smlMap.get(value) + 1);
-            }
-        }
-        return smlMap;
+        return getMapForQueryForCustomField(query, estimationSMLField);
     }
 
     private long getOpenIssueCost(Long projectId) throws SearchException {
-        Query query = getOpenIssueQuery(projectId);
-        SearchResults searchResults = searchProvider.search(query, user, PagerFilter.getUnlimitedFilter());
-        List<Issue> issues = searchResults.getIssues();
-        ListIterator<Issue> issueIterator = issues.listIterator();
+        Map<String, Long> map = getOpenIssueCostMap(projectId);
         long sumEstimates = 0;
-        while (issueIterator.hasNext()) {
-            Issue currentIssue = issueIterator.next();
-            if (currentIssue.getCustomFieldValue(estimationField) != null && currentIssue.getCustomFieldValue(estimationField) instanceof Option) {
-                String value = ((Option) currentIssue.getCustomFieldValue(estimationField)).getValue();
-                try {
-                    long estimate = Long.parseLong(value);
-                    sumEstimates += estimate;
-                }catch(NumberFormatException nfe) {
-                    sumEstimates += defaultEstimate;
-                }
+        for (Map.Entry<String, Long> entry : map.entrySet()) {
+            long key;
+            try {
+                key = Long.parseLong(entry.getKey());
+            }catch(NumberFormatException nfe) {
+                key = defaultEstimate;
             }
+            sumEstimates += key * entry.getValue();
         }
         return sumEstimates;
     }
