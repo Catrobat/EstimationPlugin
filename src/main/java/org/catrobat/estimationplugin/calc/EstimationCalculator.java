@@ -3,11 +3,16 @@ package org.catrobat.estimationplugin.calc;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.changehistory.ChangeHistory;
+import com.atlassian.jira.issue.changehistory.ChangeHistoryManager;
 import com.atlassian.jira.issue.customfields.option.Option;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchProvider;
 import com.atlassian.jira.issue.search.SearchResults;
+import com.atlassian.jira.issue.worklog.Worklog;
+import com.atlassian.jira.issue.worklog.WorklogManager;
 import com.atlassian.jira.jql.builder.JqlClauseBuilder;
 import com.atlassian.jira.jql.builder.JqlQueryBuilder;
 import com.atlassian.jira.jql.parser.JqlParseException;
@@ -15,8 +20,12 @@ import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.bean.PagerFilter;
+import com.atlassian.jira.workflow.JiraWorkflow;
+import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.query.Query;
+import org.ofbiz.core.entity.GenericValue;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -92,10 +101,61 @@ public class EstimationCalculator {
         data.put("ticketsPerDay", ticketsPerDay);
         data.put("costMap", getOpenIssueCostMap(projectId));
         data.put("smlMap", getOpenIssueSMLMap(projectId));
+        IssueManager issueManager = ComponentAccessor.getIssueManager();
+        data.put("test", getChangeItemExample(issueManager.getIssueByCurrentKey("WEB-244")));
+        data.put("test2", getStringExample(issueManager.getIssueByCurrentKey("WEB-244")));
 
         return data;
     }
 
+    private List<GenericValue> getChangeItemExample(Issue issue) {
+        ChangeHistoryManager changeHistoryManager = ComponentAccessor.getChangeHistoryManager();
+        List<ChangeHistory> issueHistory = changeHistoryManager.getChangeHistories(issue);
+        return issueHistory.get(0).getChangeItems();
+    }
+
+    private String getStringExample(Issue issue) {
+        ChangeHistoryManager changeHistoryManager = ComponentAccessor.getChangeHistoryManager();
+        List<ChangeHistory> issueHistory = changeHistoryManager.getChangeHistories(issue);
+        List<GenericValue> changeItems = issueHistory.get(0).getChangeItems();
+        String teststring = "";
+        int count = 0;
+        for(GenericValue genericValue : changeItems) {
+            String field = genericValue.getString("field");
+            teststring += field + " ";
+            String oldstring = genericValue.getString("oldstring");
+            teststring += oldstring + " ";
+            String newstring = genericValue.getString("newstring");
+            teststring += newstring + " ";
+            count++;
+            if (field.equals("status") && oldstring.equals("Issues Pool") && newstring.equals("Backlog")) {
+                teststring += "ok";
+            }
+        }
+        teststring += issueHistory.get(0).getTimePerformed().toString();
+        return teststring + " " + count;
+    }
+
+    private Timestamp getDatePutIntoBacklog(Issue issue) throws SearchException{
+        ChangeHistoryManager changeHistoryManager = ComponentAccessor.getChangeHistoryManager();
+        List<ChangeHistory> issueHistory = changeHistoryManager.getChangeHistories(issue);
+        for(ChangeHistory changeHistory : issueHistory) {
+            List<GenericValue> changeItem = changeHistory.getChangeItems();
+            for(GenericValue genericValue : changeItem) {
+                String field = genericValue.getString("field");
+                String oldstring = genericValue.getString("oldstring");
+                String newstring = genericValue.getString("newstring");
+                if (field.equals("status") && oldstring.equals("Issues Pool") && newstring.equals("Backlog")) {
+                    Timestamp changedToIssuePool = changeHistory.getTimePerformed();
+                    return changedToIssuePool;
+                }
+            }
+        }
+        // TODO: this is ugly fix, so items which where never put into backlog, have 0 days worked on
+        return issue.getResolutionDate();
+    }
+
+    // TODO: change to be based on date put into backlog
     private long getDaysTicketsWhereOpened(Long projectId) throws SearchException{
         Query query = getFinishedIssueQuery(projectId);
         SearchResults searchResults = searchProvider.search(query, user, PagerFilter.getUnlimitedFilter());
@@ -104,7 +164,8 @@ public class EstimationCalculator {
         long daysOpened = 0;
         while (issueIterator.hasNext()) {
             Issue currentIssue = issueIterator.next();
-            Timestamp created = currentIssue.getCreated();
+            //Timestamp created = currentIssue.getCreated();
+            Timestamp created = getDatePutIntoBacklog(currentIssue);
             Timestamp resolved = currentIssue.getResolutionDate();
             if (created != null && resolved != null) {
                 long diffMilliseconds = resolved.getTime() - created.getTime();

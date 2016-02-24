@@ -26,6 +26,12 @@ Cost Map value: $costMap
 <p>
 SML Map values: $smlMap
 </p>
+<p>
+Test output: $test
+</p>
+<p>
+Test 2 output: $test2
+</p>
 <br />
 <!--<table style="width: 100%; border: 0; background-color: lightgrey">
     <tr valign="bottom" style="background-color: white; padding: 1px">
