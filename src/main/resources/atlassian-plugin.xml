@@ -109,6 +109,10 @@
                     <value>Cost</value>
                 </value>
                 <value>
+                    <key>costsml</key>
+                    <value>Cost (S/M/L)</value>
+                </value>
+                <value>
                     <key>tickets</key>
                     <value>Tickets</value>
                 </value>

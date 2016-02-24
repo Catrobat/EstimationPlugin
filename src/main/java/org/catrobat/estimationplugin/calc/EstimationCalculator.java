@@ -32,6 +32,7 @@ public class EstimationCalculator {
     private List<String> openIssuesStatus = new ArrayList<String>();
     private List<String> finishedIssuesStatus = new ArrayList<String>();
     private CustomField estimationField;
+    private CustomField estimationSMLField;
     private long defaultEstimate;
 
     public EstimationCalculator(ProjectManager projectManager, SearchProvider searchProvider, ApplicationUser user) {
@@ -39,11 +40,13 @@ public class EstimationCalculator {
         this.searchProvider = searchProvider;
         this.user = user;
         // TODO: change initialisation to Admin
+        openIssuesStatus.add("Backlog");
         openIssuesStatus.add("Open");
         openIssuesStatus.add("In Progress");
         finishedIssuesStatus.add("Closed");
         CustomFieldManager customFieldManager = ComponentAccessor.getCustomFieldManager();
         estimationField = customFieldManager.getCustomFieldObjectByName("Estimated Effort");
+        estimationSMLField = customFieldManager.getCustomFieldObjectByName("Effort");
         defaultEstimate = 5;
     }
 
@@ -87,6 +90,8 @@ public class EstimationCalculator {
         String ticketsPerDay = String.valueOf(getFinishedIssueCount(projectId)) +
                 "/" +  String.valueOf(getDaysTicketsWhereOpened(projectId));
         data.put("ticketsPerDay", ticketsPerDay);
+        data.put("costMap", getOpenIssueCostMap(projectId));
+        data.put("smlMap", getOpenIssueSMLMap(projectId));
 
         return data;
     }
@@ -139,13 +144,43 @@ public class EstimationCalculator {
         return  query;
     }
 
+    // TODO: generalise and combine with getOpenIssueSMLMap
+    private Map<String, Long> getOpenIssueCostMap(Long projectId) throws SearchException {
+        Query query = getOpenIssueQuery(projectId);
+        SearchResults searchResults = searchProvider.search(query, user, PagerFilter.getUnlimitedFilter());
+        List<Issue> issues = searchResults.getIssues();
+        ListIterator<Issue> issueIterator = issues.listIterator();
+        Map<String, Long> smlMap = new HashMap<String, Long>();
+        while (issueIterator.hasNext()) {
+            Issue currentIssue = issueIterator.next();
+            if (currentIssue.getCustomFieldValue(estimationField) != null && currentIssue.getCustomFieldValue(estimationField) instanceof Option) {
+                String value = ((Option) currentIssue.getCustomFieldValue(estimationField)).getValue();
+                smlMap.putIfAbsent(value, new Long(0));
+                smlMap.put(value, smlMap.get(value) + 1);
+            }
+        }
+        return smlMap;
+    }
+
+    private Map<String, Long> getOpenIssueSMLMap(Long projectId) throws SearchException {
+        Query query = getOpenIssueQuery(projectId);
+        SearchResults searchResults = searchProvider.search(query, user, PagerFilter.getUnlimitedFilter());
+        List<Issue> issues = searchResults.getIssues();
+        ListIterator<Issue> issueIterator = issues.listIterator();
+        Map<String, Long> smlMap = new HashMap<String, Long>();
+        while (issueIterator.hasNext()) {
+            Issue currentIssue = issueIterator.next();
+            if (currentIssue.getCustomFieldValue(estimationSMLField) != null && currentIssue.getCustomFieldValue(estimationSMLField) instanceof Option) {
+                String value = ((Option) currentIssue.getCustomFieldValue(estimationSMLField)).getValue();
+                smlMap.putIfAbsent(value, new Long(0));
+                smlMap.put(value, smlMap.get(value) + 1);
+            }
+        }
+        return smlMap;
+    }
+
     private long getOpenIssueCost(Long projectId) throws SearchException {
         Query query = getOpenIssueQuery(projectId);
-        //Query query = queryBuilder.where().createdBetween(startDate, endDate).and().project(projectId).buildQuery();
-        //Collector<>
-        //JqlQueryParser queryParser = ComponentAccessor.getComponent(JqlQueryParser.class);
-        //Query query = queryParser.parseQuery("status=Backlog OR status=\"In Development\"");
-        //TODO maybe implement with collector
         SearchResults searchResults = searchProvider.search(query, user, PagerFilter.getUnlimitedFilter());
         List<Issue> issues = searchResults.getIssues();
         ListIterator<Issue> issueIterator = issues.listIterator();
