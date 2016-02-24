@@ -1,8 +1,7 @@
 <div style="padding: 5px">
 <!-- Display the report configuration -->
 <h4>
-    $i18n.getText('estimation-report.project'): $projectName |
-    $i18n.getText('estimation-report.duration'): $outlookDate.formatDMY($startDate) - $outlookDate.formatDMY($endDate)
+    $i18n.getText('estimation-report.project'): $projectName
 </h4>
 <p>
 $i18n.getText('estimation-report.prognosis')
