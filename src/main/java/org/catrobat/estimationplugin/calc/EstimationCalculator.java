@@ -39,7 +39,7 @@ public class EstimationCalculator {
         // TODO: change initialisation to Admin
         openIssuesStatus.add("Open");
         openIssuesStatus.add("In Progress");
-        finishedIssuesStatus.add("Done");
+        finishedIssuesStatus.add("Closed");
         CustomFieldManager customFieldManager = ComponentAccessor.getCustomFieldManager();
         estimationField = customFieldManager.getCustomFieldObjectByName("Estimated Effort");
     }
@@ -98,9 +98,11 @@ public class EstimationCalculator {
             Issue currentIssue = issueIterator.next();
             Timestamp created = currentIssue.getCreated();
             Timestamp resolved = currentIssue.getResolutionDate();
-            long diffMilliseconds = resolved.getTime() - created.getTime();
-            long days = diffMilliseconds / (1000*60*60*24);
-            daysOpened += days;
+            if (created != null && resolved != null) {
+                long diffMilliseconds = resolved.getTime() - created.getTime();
+                long days = diffMilliseconds / (1000 * 60 * 60 * 24);
+                daysOpened += days;
+            }
         }
         return daysOpened;
     }
