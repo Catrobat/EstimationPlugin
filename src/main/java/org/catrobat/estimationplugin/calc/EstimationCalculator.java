@@ -11,14 +11,12 @@ import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchProvider;
 import com.atlassian.jira.issue.search.SearchResults;
-import com.atlassian.jira.jql.builder.JqlClauseBuilder;
-import com.atlassian.jira.jql.builder.JqlQueryBuilder;
-import com.atlassian.jira.jql.parser.JqlParseException;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.query.Query;
+import org.catrobat.estimationplugin.jql.IssueListCreator;
 import org.ofbiz.core.entity.GenericValue;
 
 import java.sql.Timestamp;
@@ -40,10 +38,16 @@ public class EstimationCalculator {
     private CustomField estimationSMLField;
     private long defaultEstimate;
 
+    private IssueListCreator issueListCreator;
+    private List<Issue> openIssueList;
+    private List<Issue> finishedIssueList;
+
     public EstimationCalculator(ProjectManager projectManager, SearchProvider searchProvider, ApplicationUser user) {
         this.projectManager = projectManager;
         this.searchProvider = searchProvider;
         this.user = user;
+        issueListCreator = new IssueListCreator(searchProvider, user);
+
         loadSettings();
     }
 
@@ -78,7 +82,7 @@ public class EstimationCalculator {
     }
 
     public long getProjectStartInMillis(Long projectId) throws SearchException {
-        Query query = getFinishedIssueQuery(projectId);
+        Query query = issueListCreator.getQueryWithIssueStatus(projectId, finishedIssuesStatus);
         SearchResults searchResults = searchProvider.search(query, user, PagerFilter.getUnlimitedFilter());
         List<Issue> issues = searchResults.getIssues();
         ListIterator<Issue> issueIterator = issues.listIterator();
@@ -97,13 +101,31 @@ public class EstimationCalculator {
         return new Date(getProjectStartInMillis(projectId));
     }
 
-    public int calculateBasedOnTotalTime(Long projectid, Date start, Date end, Long interval) {
-        Project project = projectManager.getProjectObj(projectid);
-        return 0;
-    }
 
-    public Map<String, Object> calculateOutputParams(Long projectId) throws SearchException, JqlParseException
+    public Map<String, Object> calculateOutputParams(Long projectId, boolean isProject) throws SearchException
     {
+        if (isProject == false) {
+
+            Map<String, Object> data = new HashMap<String, Object>();
+            data.put("openIssues", "");
+            data.put("openCost", "");
+            data.put("finishDate", "");
+            data.put("uncertainty", "");
+            data.put("ticketsPerDay", "");
+            data.put("costMap", "");
+            data.put("smlMap", "");
+            data.put("test", "");
+            data.put("test2", "");
+            data.put("avgDaysOpened", "");
+            data.put("avgFinishDate", "");
+            data.put("projectStart", "");
+
+            return data;
+
+        }
+        openIssueList = issueListCreator.getIssueListForStatus(projectId, openIssuesStatus);
+        finishedIssueList = issueListCreator.getIssueListForStatus(projectId, finishedIssuesStatus);
+
         calculateTicketsPerDay(projectId);
         int uncertainty = uncertainty();
 
@@ -190,7 +212,7 @@ public class EstimationCalculator {
 
     // TODO: change to be based on date put into backlog
     private long getDaysTicketsWhereOpened(Long projectId) throws SearchException{
-        Query query = getFinishedIssueQuery(projectId);
+        Query query = issueListCreator.getQueryWithIssueStatus(projectId, finishedIssuesStatus);
         SearchResults searchResults = searchProvider.search(query, user, PagerFilter.getUnlimitedFilter());
         List<Issue> issues = searchResults.getIssues();
         ListIterator<Issue> issueIterator = issues.listIterator();
@@ -209,33 +231,19 @@ public class EstimationCalculator {
         return daysOpened;
     }
 
-    private long getFinishedIssueCount(Long projectId) throws SearchException{
-        Query query = getFinishedIssueQuery(projectId);
-        return searchProvider.searchCount(query, user);
-    }
-
-    private Query getOpenIssueQuery(Long projectId) {
-        return getQueryWithIssueStatus(projectId, openIssuesStatus);
-    }
-
-    private Query getFinishedIssueQuery(Long projectId) {
-        return getQueryWithIssueStatus(projectId, finishedIssuesStatus);
-    }
-
-    private Query getQueryWithIssueStatus(Long projectId, List<String> status) {
-        JqlQueryBuilder queryBuilder = JqlQueryBuilder.newBuilder();
-
-        if (status.size() == 0) {
-            return queryBuilder.buildQuery();
+    private Map<String, Long> getMapOfEffortsFromIssueListForCustomField(List<Issue> issueList, CustomField customField) {
+        List<Issue> issues = issueList;
+        ListIterator<Issue> issueIterator = issues.listIterator();
+        Map<String, Long> map = new HashMap<String, Long>();
+        while (issueIterator.hasNext()) {
+            Issue currentIssue = issueIterator.next();
+            if (currentIssue.getCustomFieldValue(customField) != null && currentIssue.getCustomFieldValue(customField) instanceof Option) {
+                String value = ((Option) currentIssue.getCustomFieldValue(customField)).getValue();
+                map.putIfAbsent(value, new Long(0));
+                map.put(value, map.get(value) + 1);
+            }
         }
-
-        ListIterator<String> iterator = status.listIterator();
-        JqlClauseBuilder clause = queryBuilder.where().project(projectId).and().status().eq(iterator.next());
-        while(iterator.hasNext()) {
-            clause = clause.or().status().eq(iterator.next());
-        }
-        Query query = clause.buildQuery();
-        return  query;
+        return map;
     }
 
     private Map<String, Long> getMapForQueryForCustomField(Query query, CustomField customField) throws SearchException {
@@ -255,15 +263,16 @@ public class EstimationCalculator {
     }
 
     private Map<String, Long> getOpenIssueCostMap(Long projectId) throws SearchException {
-        Query query = getOpenIssueQuery(projectId);
+        Query query = issueListCreator.getQueryWithIssueStatus(projectId, openIssuesStatus);
         return getMapForQueryForCustomField(query, estimationField);
     }
 
     private Map<String, Long> getOpenIssueSMLMap(Long projectId) throws SearchException {
-        Query query = getOpenIssueQuery(projectId);
+        Query query = issueListCreator.getQueryWithIssueStatus(projectId, openIssuesStatus);
         return getMapForQueryForCustomField(query, estimationSMLField);
     }
 
+    // TODO: based on list
     private long getOpenIssueCost(Long projectId) throws SearchException {
         Map<String, Long> map = getOpenIssueCostMap(projectId);
         long sumEstimates = 0;
@@ -280,7 +289,10 @@ public class EstimationCalculator {
     }
 
     private long getOpenIssueCount(Long projectId) throws SearchException {
-        Query query = getOpenIssueQuery(projectId);
-        return searchProvider.searchCount(query, user);
+        return openIssueList.size();
+    }
+
+    private long getFinishedIssueCount(Long projectId) throws SearchException{
+        return finishedIssueList.size();
     }
 }

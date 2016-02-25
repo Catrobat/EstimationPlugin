@@ -38,11 +38,31 @@ public class EstimationReport extends AbstractReport {
 
     public String generateReportHtml(ProjectActionSupport action, Map params) throws Exception {
         ApplicationUser remoteUser = action.getLoggedInApplicationUser();
+        //Long projectId = ParameterUtils.getLongParam(params, "selectedProjectId");
         Long projectId = ParameterUtils.getLongParam(params, "selectedProjectId");
+        Long filterId = new Long(0);
+        String filterOrProjectId = ParameterUtils.getStringParam(params, "projectid");
+        boolean isProjectId = false;
+        if (filterOrProjectId.startsWith("project-")) {
+            isProjectId = true;
+            projectId = Long.parseLong(filterOrProjectId.replaceFirst("project-", ""));
+        } else if (filterOrProjectId.startsWith("filter-")) {
+            filterId = Long.parseLong(filterOrProjectId.replaceFirst("filter-", ""));
+        } else if (filterOrProjectId.equals("")) {
+            isProjectId = true;
+            projectId = ParameterUtils.getLongParam(params, "selectedProjectId");
+        } else {
+            throw new AssertionError("neither project nor filter id");
+        }
         Long numprog = ParameterUtils.getLongParam(params, "numprog");
 
         EstimationCalculator estimationCalculator = new EstimationCalculator(projectManager, searchProvider, remoteUser);
-        Map<String, Object> velocityParams = estimationCalculator.calculateOutputParams(projectId);
+        Map<String, Object> velocityParams;
+        if (isProjectId) {
+            velocityParams = estimationCalculator.calculateOutputParams(projectId, isProjectId);
+        } else {
+            velocityParams = estimationCalculator.calculateOutputParams(filterId, isProjectId);
+        }
 
         velocityParams.put("projectName", projectManager.getProjectObj(projectId).getName());
         velocityParams.put("filter", "TESTVAL");
