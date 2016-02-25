@@ -61,13 +61,40 @@ public class EstimationCalculator {
 
     public void calculateTicketsPerDay(Long projectId) throws SearchException
     {
-        ticketsPerDay = getFinishedIssueCount(projectId)/((float)getDaysTicketsWhereOpened(projectId));
+        ticketsPerDay = getFinishedIssueCount(projectId)/((float)getProjectDurationFromStart(projectId));
         averageTicketDurationDays = getDaysTicketsWhereOpened(projectId)/((float)getFinishedIssueCount(projectId));
     }
 
     public int uncertainty()
     {
         return 7;
+    }
+
+    public long getProjectDurationFromStart(Long projectId) throws SearchException{
+        long start = getProjectStartInMillis(projectId);
+        Date today = new Date();
+        long days = (today.getTime() - start)/(1000 * 60 * 60 * 24);
+        return  days;
+    }
+
+    public long getProjectStartInMillis(Long projectId) throws SearchException {
+        Query query = getFinishedIssueQuery(projectId);
+        SearchResults searchResults = searchProvider.search(query, user, PagerFilter.getUnlimitedFilter());
+        List<Issue> issues = searchResults.getIssues();
+        ListIterator<Issue> issueIterator = issues.listIterator();
+        Timestamp minCreated = issueIterator.next().getCreated();
+        while (issueIterator.hasNext()) {
+            Issue currentIssue = issueIterator.next();
+            Timestamp created = currentIssue.getCreated();
+            if (minCreated.getTime() - created.getTime() > 0) {
+                minCreated = created;
+            }
+        }
+        return minCreated.getTime();
+    }
+
+    public Date getProjectStartDate(Long projectId) throws SearchException{
+        return new Date(getProjectStartInMillis(projectId));
     }
 
     public int calculateBasedOnTotalTime(Long projectid, Date start, Date end, Long interval) {
@@ -98,7 +125,7 @@ public class EstimationCalculator {
         data.put("finishDate", finishDate.getTime());
         data.put("uncertainty", uncertainty);
         String ticketsPerDay = String.valueOf(getFinishedIssueCount(projectId)) +
-                "/" +  String.valueOf(getDaysTicketsWhereOpened(projectId));
+                "/" +  String.valueOf(getDaysTicketsWhereOpened(projectId) + "/" + String.valueOf(getProjectDurationFromStart(projectId)));
         data.put("ticketsPerDay", ticketsPerDay);
         data.put("costMap", getOpenIssueCostMap(projectId));
         data.put("smlMap", getOpenIssueSMLMap(projectId));
@@ -109,6 +136,7 @@ public class EstimationCalculator {
         finishDate.setTime(today);
         finishDate.add(Calendar.DATE,Math.round(averageTicketDurationDays));
         data.put("avgFinishDate", finishDate.getTime());
+        data.put("projectStart", getProjectStartDate(projectId));
 
         return data;
     }

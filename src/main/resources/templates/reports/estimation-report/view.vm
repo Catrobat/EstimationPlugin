@@ -23,6 +23,12 @@ Cost Map value: $costMap
 <p>
 SML Map values: $smlMap
 </p>
+<h5>
+Debug
+</h5>
+<p>
+Project Start Date: $projectStart
+</p>
 <p>
 Test output: $test
 </p>
