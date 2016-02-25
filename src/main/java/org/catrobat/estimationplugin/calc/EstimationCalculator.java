@@ -32,6 +32,7 @@ public class EstimationCalculator {
     private final ApplicationUser user;
 
     private float ticketsPerDay;
+    private float averageTicketDurationDays;
 
     private List<String> openIssuesStatus = new ArrayList<String>();
     private List<String> finishedIssuesStatus = new ArrayList<String>();
@@ -43,6 +44,10 @@ public class EstimationCalculator {
         this.projectManager = projectManager;
         this.searchProvider = searchProvider;
         this.user = user;
+        loadSettings();
+    }
+
+    private void loadSettings() {
         // TODO: change initialisation to Admin
         openIssuesStatus.add("Backlog");
         openIssuesStatus.add("Open");
@@ -57,6 +62,7 @@ public class EstimationCalculator {
     public void calculateTicketsPerDay(Long projectId) throws SearchException
     {
         ticketsPerDay = getFinishedIssueCount(projectId)/((float)getDaysTicketsWhereOpened(projectId));
+        averageTicketDurationDays = getDaysTicketsWhereOpened(projectId)/((float)getFinishedIssueCount(projectId));
     }
 
     public int uncertainty()
@@ -99,6 +105,10 @@ public class EstimationCalculator {
         IssueManager issueManager = ComponentAccessor.getIssueManager();
         data.put("test", getChangeItemExample(issueManager.getIssueByCurrentKey("WEB-244")));
         data.put("test2", getStringExample(issueManager.getIssueByCurrentKey("WEB-244")));
+        data.put("avgDaysOpened", averageTicketDurationDays);
+        finishDate.setTime(today);
+        finishDate.add(Calendar.DATE,Math.round(averageTicketDurationDays));
+        data.put("avgFinishDate", finishDate.getTime());
 
         return data;
     }

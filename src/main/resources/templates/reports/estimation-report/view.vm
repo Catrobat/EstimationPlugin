@@ -4,10 +4,8 @@
     $i18n.getText('estimation-report.project'): $projectName
 </h4>
 <p>
-$i18n.getText('estimation-report.prognosis')
-</p>
-<p>
-$i18n.getText('estimation-report.for') $projectName $i18n.getText('estimation-report.filter') $filter
+$i18n.getText('estimation-report.prognosis') $i18n.getText('estimation-report.for')
+$projectName $i18n.getText('estimation-report.filter') $filter
 </p>
 <p>
 $i18n.getText('estimation-report.for') $countMember $i18n.getText('estimation-report.member')
@@ -30,6 +28,12 @@ Test output: $test
 </p>
 <p>
 Test 2 output: $test2
+</p>
+<h5>
+Based on Average Duration
+</h5>
+<p>
+Average Days Opened: $avgDaysOpened . Projected finish date: $avgFinishDate
 </p>
 <br />
 <!--<table style="width: 100%; border: 0; background-color: lightgrey">
