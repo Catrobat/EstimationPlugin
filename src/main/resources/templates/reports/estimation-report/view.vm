@@ -29,12 +29,6 @@ Debug
 <p>
 Project Start Date: $projectStart
 </p>
-<p>
-Test output: $test
-</p>
-<p>
-Test 2 output: $test2
-</p>
 <h5>
 Based on Average Duration
 </h5>
