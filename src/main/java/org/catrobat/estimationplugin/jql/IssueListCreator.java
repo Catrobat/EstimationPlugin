@@ -27,7 +27,7 @@ public class IssueListCreator {
         this.user = user;
     }
 
-    private Query getQueryWithIssueStatus(Long projectId, List<String> status, boolean isFilter) {
+    private Query getQueryWithIssueStatus(Long projectOrFilterId, List<String> status, boolean isFilter) {
         JqlQueryBuilder queryBuilder = JqlQueryBuilder.newBuilder();
 
         if (status.size() == 0) {
@@ -37,9 +37,9 @@ public class IssueListCreator {
         ListIterator<String> iterator = status.listIterator();
         JqlClauseBuilder clause = queryBuilder.where();
         if (!isFilter) {
-            clause = clause.project(projectId);
+            clause = clause.project(projectOrFilterId);
         } else {
-            clause = clause.savedFilter().eq(projectId);
+            clause = clause.savedFilter().eq(projectOrFilterId);
         }
         clause = clause.and().sub().status().eq(iterator.next());
         while(iterator.hasNext()) {
@@ -50,8 +50,8 @@ public class IssueListCreator {
         return  query;
     }
 
-    public List<Issue> getIssueListForStatus(Long projectId, List<String> status, boolean isFilter) throws SearchException {
-        Query query = getQueryWithIssueStatus(projectId, status, isFilter);
+    public List<Issue> getIssueListForStatus(Long projectOrFilterId, List<String> status, boolean isFilter) throws SearchException {
+        Query query = getQueryWithIssueStatus(projectOrFilterId, status, isFilter);
         SearchResults searchResults = searchProvider.search(query, user, PagerFilter.getUnlimitedFilter());
         List<Issue> issueList = searchResults.getIssues();
         return  issueList;

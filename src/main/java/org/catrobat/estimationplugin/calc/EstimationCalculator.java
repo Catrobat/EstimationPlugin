@@ -128,10 +128,10 @@ public class EstimationCalculator {
         return data;
     }
 
-    public Map<String, Object> calculateOutputParams(Long projectId, boolean isFilter) throws SearchException
+    public Map<String, Object> calculateOutputParams(Long projectOrFilterId, boolean isFilter) throws SearchException
     {
-        openIssueList = issueListCreator.getIssueListForStatus(projectId, openIssuesStatus, isFilter);
-        finishedIssueList = issueListCreator.getIssueListForStatus(projectId, finishedIssuesStatus, isFilter);
+        openIssueList = issueListCreator.getIssueListForStatus(projectOrFilterId, openIssuesStatus, isFilter);
+        finishedIssueList = issueListCreator.getIssueListForStatus(projectOrFilterId, finishedIssuesStatus, isFilter);
 
         return prepareMap();
     }
