@@ -42,7 +42,7 @@ public class EstimationReport extends AbstractReport {
         Long filterId = new Long(0);
         String filterOrProjectId = ParameterUtils.getStringParam(params, "projectid");
 
-        EstimationCalculator estimationCalculator = new EstimationCalculator(projectManager, searchProvider, remoteUser);
+        EstimationCalculator estimationCalculator = new EstimationCalculator(projectManager, searchProvider, remoteUser, formatterFactory);
         Map<String, Object> velocityParams;
 
         if (filterOrProjectId.startsWith("project-")) {

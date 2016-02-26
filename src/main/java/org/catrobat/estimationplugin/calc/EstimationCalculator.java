@@ -1,6 +1,9 @@
 package org.catrobat.estimationplugin.calc;
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.datetime.DateTimeFormatter;
+import com.atlassian.jira.datetime.DateTimeFormatterFactory;
+import com.atlassian.jira.datetime.DateTimeStyle;
 import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.changehistory.ChangeHistory;
@@ -21,6 +24,7 @@ import java.util.*;
 public class EstimationCalculator {
 
     private final ProjectManager projectManager;
+    private final DateTimeFormatter dateTimeFormatter;
 
     private float ticketsPerDay;
     private float averageTicketDurationDays;
@@ -35,9 +39,11 @@ public class EstimationCalculator {
     private List<Issue> openIssueList;
     private List<Issue> finishedIssueList;
 
-    public EstimationCalculator(ProjectManager projectManager, SearchProvider searchProvider, ApplicationUser user) {
+    public EstimationCalculator(ProjectManager projectManager, SearchProvider searchProvider, ApplicationUser user,
+                                DateTimeFormatterFactory formatterFactory) {
         this.projectManager = projectManager;
         issueListCreator = new IssueListCreator(searchProvider, user);
+        this.dateTimeFormatter = formatterFactory.formatter().withStyle(DateTimeStyle.ISO_8601_DATE);
 
         loadSettings();
     }
@@ -110,7 +116,7 @@ public class EstimationCalculator {
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("openIssues", openIssues);
         data.put("openCost", openCost);
-        data.put("finishDate", finishDate.getTime());
+        data.put("finishDate", dateTimeFormatter.format(finishDate.getTime()));
         data.put("uncertainty", uncertainty);
         String ticketsPerDay = String.valueOf(getFinishedIssueCount()) +
                 "/" +  String.valueOf(getDaysTicketsWhereOpened() + "/" + String.valueOf(getProjectDurationFromStart()));
@@ -120,8 +126,8 @@ public class EstimationCalculator {
         data.put("avgDaysOpened", averageTicketDurationDays);
         finishDate.setTime(today);
         finishDate.add(Calendar.DATE,Math.round(averageTicketDurationDays));
-        data.put("avgFinishDate", finishDate.getTime());
-        data.put("projectStart", getProjectStartDate());
+        data.put("avgFinishDate", dateTimeFormatter.format(finishDate.getTime()));
+        data.put("projectStart", dateTimeFormatter.format(getProjectStartDate()));
         data.put("openIssueList", openIssueList);
         data.put("queryLog", issueListCreator.getQueryLog());
 
