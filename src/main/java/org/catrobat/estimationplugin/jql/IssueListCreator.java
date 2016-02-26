@@ -10,6 +10,7 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.query.Query;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -19,12 +20,14 @@ public class IssueListCreator {
     private final SearchProvider searchProvider;
     private final ApplicationUser user;
 
+    private List<Query> queryLog = new LinkedList<Query>();
+
     public IssueListCreator(SearchProvider searchProvider, ApplicationUser user) {
         this.searchProvider = searchProvider;
         this.user = user;
     }
 
-    public Query getQueryWithIssueStatus(Long projectId, List<String> status) {
+    private Query getQueryWithIssueStatus(Long projectId, List<String> status, boolean isFilter) {
         JqlQueryBuilder queryBuilder = JqlQueryBuilder.newBuilder();
 
         if (status.size() == 0) {
@@ -32,18 +35,29 @@ public class IssueListCreator {
         }
 
         ListIterator<String> iterator = status.listIterator();
-        JqlClauseBuilder clause = queryBuilder.where().project(projectId).and().status().eq(iterator.next());
+        JqlClauseBuilder clause = queryBuilder.where();
+        if (!isFilter) {
+            clause = clause.project(projectId);
+        } else {
+            clause = clause.savedFilter().eq(projectId);
+        }
+        clause = clause.and().sub().status().eq(iterator.next());
         while(iterator.hasNext()) {
             clause = clause.or().status().eq(iterator.next());
         }
-        Query query = clause.buildQuery();
+        Query query = clause.endsub().buildQuery();
+        queryLog.add(query);
         return  query;
     }
 
-    public List<Issue> getIssueListForStatus(Long projectId, List<String> status) throws SearchException {
-        Query query = getQueryWithIssueStatus(projectId, status);
+    public List<Issue> getIssueListForStatus(Long projectId, List<String> status, boolean isFilter) throws SearchException {
+        Query query = getQueryWithIssueStatus(projectId, status, isFilter);
         SearchResults searchResults = searchProvider.search(query, user, PagerFilter.getUnlimitedFilter());
         List<Issue> issueList = searchResults.getIssues();
         return  issueList;
+    }
+
+    public String getQueryLog() {
+        return queryLog.toString();
     }
 }

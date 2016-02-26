@@ -29,6 +29,12 @@ Debug
 <p>
 Project Start Date: $projectStart
 </p>
+<p>
+Query: $queryLog
+</p>
+<p>
+Open Issue List: $openIssueList
+</p>
 <h5>
 Based on Average Duration
 </h5>

@@ -75,6 +75,10 @@ public class EstimationCalculator {
     public long getProjectStartInMillis() {
         List<Issue> issues = finishedIssueList;
         ListIterator<Issue> issueIterator = issues.listIterator();
+        if (!issueIterator.hasNext()) {
+            // TODO: make sure you never come here
+            return (new Date()).getTime();
+        }
         Timestamp minCreated = issueIterator.next().getCreated();
         while (issueIterator.hasNext()) {
             Issue currentIssue = issueIterator.next();
@@ -90,31 +94,7 @@ public class EstimationCalculator {
         return new Date(getProjectStartInMillis());
     }
 
-
-    public Map<String, Object> calculateOutputParams(Long projectId, boolean isProject) throws SearchException
-    {
-        if (isProject == false) {
-
-            Map<String, Object> data = new HashMap<String, Object>();
-            data.put("openIssues", "");
-            data.put("openCost", "");
-            data.put("finishDate", "");
-            data.put("uncertainty", "");
-            data.put("ticketsPerDay", "");
-            data.put("costMap", "");
-            data.put("smlMap", "");
-            data.put("test", "");
-            data.put("test2", "");
-            data.put("avgDaysOpened", "");
-            data.put("avgFinishDate", "");
-            data.put("projectStart", "");
-
-            return data;
-
-        }
-        openIssueList = issueListCreator.getIssueListForStatus(projectId, openIssuesStatus);
-        finishedIssueList = issueListCreator.getIssueListForStatus(projectId, finishedIssuesStatus);
-
+    public Map<String, Object> prepareMap() {
         calculateTicketsPerDay();
         int uncertainty = uncertainty();
 
@@ -142,8 +122,18 @@ public class EstimationCalculator {
         finishDate.add(Calendar.DATE,Math.round(averageTicketDurationDays));
         data.put("avgFinishDate", finishDate.getTime());
         data.put("projectStart", getProjectStartDate());
+        data.put("openIssueList", openIssueList);
+        data.put("queryLog", issueListCreator.getQueryLog());
 
         return data;
+    }
+
+    public Map<String, Object> calculateOutputParams(Long projectId, boolean isFilter) throws SearchException
+    {
+        openIssueList = issueListCreator.getIssueListForStatus(projectId, openIssuesStatus, isFilter);
+        finishedIssueList = issueListCreator.getIssueListForStatus(projectId, finishedIssuesStatus, isFilter);
+
+        return prepareMap();
     }
 
     private Timestamp getDatePutIntoBacklog(Issue issue) {
