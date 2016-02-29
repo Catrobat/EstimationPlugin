@@ -10,6 +10,7 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.query.Query;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -48,6 +49,34 @@ public class IssueListCreator {
         Query query = clause.endsub().buildQuery();
         queryLog.add(query);
         return  query;
+    }
+
+    private Query tmpGetQueryForMonth(Long projectOrFilterId, List<String> status, boolean isFilter, Date startDate, Date endDate) {
+        JqlQueryBuilder queryBuilder = JqlQueryBuilder.newBuilder();
+
+        if (status.size() == 0) {
+            return queryBuilder.buildQuery();
+        }
+
+        ListIterator<String> iterator = status.listIterator();
+        JqlClauseBuilder clause = queryBuilder.where().resolutionDateBetween(startDate, endDate).and();
+        if (!isFilter) {
+            clause = clause.project(projectOrFilterId);
+        } else {
+            clause = clause.savedFilter().eq(projectOrFilterId);
+        }
+        clause = clause.and().sub().status().eq(iterator.next());
+        while(iterator.hasNext()) {
+            clause = clause.or().status().eq(iterator.next());
+        }
+        Query query = clause.endsub().buildQuery();
+        queryLog.add(query);
+        return  query;
+    }
+
+    public long getMonthlyResolution(Long projectOrFilterId, List<String> status, boolean isFilter, Date startDate, Date endDate) throws SearchException {
+        Query query = tmpGetQueryForMonth(projectOrFilterId, status, isFilter, startDate, endDate);
+        return searchProvider.searchCount(query, user);
     }
 
     public List<Issue> getIssueListForStatus(Long projectOrFilterId, List<String> status, boolean isFilter) throws SearchException {
