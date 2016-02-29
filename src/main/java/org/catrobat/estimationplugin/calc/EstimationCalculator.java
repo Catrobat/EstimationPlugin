@@ -14,6 +14,7 @@ import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchProvider;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.ApplicationUser;
+import org.catrobat.estimationplugin.helper.DateHelper;
 import org.catrobat.estimationplugin.jql.IssueListCreator;
 import org.ofbiz.core.entity.GenericValue;
 
@@ -27,7 +28,7 @@ public class EstimationCalculator {
     private final DateTimeFormatter dateTimeFormatter;
 
     private float ticketsPerDay;
-    List<String> ticketsPerDayForMonth = new LinkedList<String>();
+    List<String> ticketsPerMonth = new LinkedList<String>();
     private float averageTicketDurationDays;
 
     private List<String> openIssuesStatus = new ArrayList<String>();
@@ -63,31 +64,14 @@ public class EstimationCalculator {
 
     public void calculateTicketsPerMonth(Long projectId, boolean isFilter, Date startDate) throws SearchException {
         Date today = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startDate);
-        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMinimum(Calendar.DAY_OF_MONTH));
-        calendar.set(Calendar.HOUR_OF_DAY, calendar.getActualMinimum(Calendar.HOUR_OF_DAY));
-        calendar.set(Calendar.MINUTE, calendar.getActualMinimum(Calendar.MINUTE));
-        calendar.set(Calendar.SECOND, calendar.getActualMinimum(Calendar.SECOND));
-        calendar.set(Calendar.MILLISECOND, calendar.getActualMinimum(Calendar.MILLISECOND));
-        Date curStartDate = calendar.getTime();
-        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-        calendar.set(Calendar.HOUR_OF_DAY, calendar.getActualMaximum(Calendar.HOUR_OF_DAY));
-        calendar.set(Calendar.MINUTE, calendar.getActualMaximum(Calendar.MINUTE));
-        calendar.set(Calendar.SECOND, calendar.getActualMaximum(Calendar.SECOND));
-        calendar.set(Calendar.MILLISECOND, calendar.getActualMaximum(Calendar.MILLISECOND));
-        Date curEndDate = calendar.getTime();
+        Date curStartDate = DateHelper.getStartOfMonth(startDate);
+        Date curEndDate = DateHelper.getEndOfMonth(startDate);
         while (curStartDate.getTime() <  today.getTime()) {
             long ticketRate = issueListCreator.getMonthlyResolution(projectId, finishedIssuesStatus,
                     isFilter, curStartDate, curEndDate);
-            ticketsPerDayForMonth.add(dateTimeFormatter.format(curStartDate) + ": " + ticketRate);
-            calendar.setTime(curStartDate);
-            calendar.add(Calendar.MONTH, 1);
-            curStartDate = calendar.getTime();
-            calendar.setTime(curEndDate);
-            calendar.add(Calendar.MONTH, 1);
-            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-            curEndDate = calendar.getTime();
+            ticketsPerMonth.add(dateTimeFormatter.format(curStartDate) + ": " + ticketRate);
+            curStartDate = DateHelper.getStartOfNextMonth(curStartDate);
+            curEndDate = DateHelper.getEndOfNextMonth(curEndDate);
         }
     }
 
@@ -162,7 +146,7 @@ public class EstimationCalculator {
         data.put("openIssueList", openIssueList);
         data.put("queryLog", issueListCreator.getQueryLog());
 
-        data.put("ticketRateMonthly", ticketsPerDayForMonth.toString());
+        data.put("ticketRateMonthly", ticketsPerMonth.toString());
 
         return data;
     }

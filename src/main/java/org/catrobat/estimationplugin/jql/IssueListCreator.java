@@ -51,31 +51,18 @@ public class IssueListCreator {
         return  query;
     }
 
-    private Query tmpGetQueryForMonth(Long projectOrFilterId, List<String> status, boolean isFilter, Date startDate, Date endDate) {
-        JqlQueryBuilder queryBuilder = JqlQueryBuilder.newBuilder();
+    private Query getQueryWithIssueStatusResolvedBetween(Long projectOrFilterId, List<String> status, boolean isFilter, Date startDate, Date endDate) {
+        Query query = getQueryWithIssueStatus(projectOrFilterId, status, isFilter);
 
-        if (status.size() == 0) {
-            return queryBuilder.buildQuery();
-        }
-
-        ListIterator<String> iterator = status.listIterator();
-        JqlClauseBuilder clause = queryBuilder.where().resolutionDateBetween(startDate, endDate).and();
-        if (!isFilter) {
-            clause = clause.project(projectOrFilterId);
-        } else {
-            clause = clause.savedFilter().eq(projectOrFilterId);
-        }
-        clause = clause.and().sub().status().eq(iterator.next());
-        while(iterator.hasNext()) {
-            clause = clause.or().status().eq(iterator.next());
-        }
-        Query query = clause.endsub().buildQuery();
+        JqlQueryBuilder queryBuilder = JqlQueryBuilder.newBuilder(query);
+        queryBuilder.where().and().resolutionDateBetween(startDate, endDate);
+        query = queryBuilder.buildQuery();
         queryLog.add(query);
-        return  query;
+        return query;
     }
 
     public long getMonthlyResolution(Long projectOrFilterId, List<String> status, boolean isFilter, Date startDate, Date endDate) throws SearchException {
-        Query query = tmpGetQueryForMonth(projectOrFilterId, status, isFilter, startDate, endDate);
+        Query query = getQueryWithIssueStatusResolvedBetween(projectOrFilterId, status, isFilter, startDate, endDate);
         return searchProvider.searchCount(query, user);
     }
 
