@@ -25,9 +25,9 @@ public class EstimationCalculator {
     private final ProjectManager projectManager;
     private final DateTimeFormatter dateTimeFormatter;
 
-    private float ticketsPerDay;
+    private double ticketsPerDay;
     List<String> ticketsPerMonth = new LinkedList<String>();
-    private float averageTicketDurationDays;
+    private double averageTicketDurationDays;
 
     private List<String> openIssuesStatus = new ArrayList<String>();
     private List<String> finishedIssuesStatus = new ArrayList<String>();
@@ -76,24 +76,8 @@ public class EstimationCalculator {
     }
 
     public void calculateTicketsPerDay() {
-        ticketsPerDay = finishedIssueListClass.getFinishedIssueCount()/((float)getProjectDurationFromStart());
-        averageTicketDurationDays = finishedIssueListClass.getDaysTicketsWhereOpened()/((float)finishedIssueListClass.getFinishedIssueCount());
-    }
-
-    public long getProjectDurationFromStart() {
-        long start = finishedIssueListClass.getProjectStartInMillis();
-        Date today = new Date();
-        long days = (today.getTime() - start)/(1000 * 60 * 60 * 24);
-        return  days;
-    }
-
-    public Date getProjectStartDate() {
-        return new Date(finishedIssueListClass.getProjectStartInMillis());
-    }
-
-    //TODO: change to helper
-    private double convertMillisToDays(double millis) {
-        return millis/(1000 * 60 * 60 * 24);
+        ticketsPerDay = finishedIssueListClass.getFinishedIssueCount()/((double)finishedIssueListClass.getProjectDurationFromStart());
+        averageTicketDurationDays = finishedIssueListClass.getDaysTicketsWhereOpened()/((double)finishedIssueListClass.getFinishedIssueCount());
     }
 
     public Map<String, Object> prepareMap() {
@@ -102,28 +86,28 @@ public class EstimationCalculator {
         Date today = new Date();
         long openIssues = openIssueListClass.getOpenIssueCount();
         long openCost = openIssueListClass.getOpenIssueCost();
-        float daysToFinish = openIssues / ticketsPerDay;
-        int daysToFinishRounded = Math.round(daysToFinish);
+        double daysToFinish = openIssues / ticketsPerDay;
+        long daysToFinishRounded = Math.round(daysToFinish);
         Calendar finishDate = Calendar.getInstance();
         finishDate.setTime(today);
-        finishDate.add(Calendar.DATE, daysToFinishRounded);
+        finishDate.add(Calendar.DATE, (int)daysToFinishRounded);
 
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("openIssues", openIssues);
         data.put("openCost", openCost);
         data.put("finishDate", dateTimeFormatter.format(finishDate.getTime()));
-        //data.put("uncertainty", uncertainty);
+        data.put("uncertainty", DateHelper.convertMillisToDays((long)finishedIssueListClass.getDurationStatistics().getStandardDeviation())/7);
         String ticketsPerDay = String.valueOf(finishedIssueListClass.getFinishedIssueCount()) +
-                "/" +  String.valueOf(finishedIssueListClass.getDaysTicketsWhereOpened() + "/" + String.valueOf(getProjectDurationFromStart()));
+                "/" +  String.valueOf(finishedIssueListClass.getDaysTicketsWhereOpened() + "/" + String.valueOf(finishedIssueListClass.getProjectDurationFromStart()));
         data.put("ticketsPerDay", ticketsPerDay);
         data.put("costMap", costMap);
         data.put("smlMap", smlMap);
         data.put("avgDaysOpened", averageTicketDurationDays);
-        data.put("avgDaysOpenedNew", convertMillisToDays(finishedIssueListClass.getDurationStatistics().getMean()));
+        data.put("avgDaysOpenedNew", DateHelper.convertMillisToDays((long)finishedIssueListClass.getDurationStatistics().getMean()));
         finishDate.setTime(today);
-        finishDate.add(Calendar.DATE,Math.round(averageTicketDurationDays));
+        finishDate.add(Calendar.DATE,(int)Math.round(averageTicketDurationDays));
         data.put("avgFinishDate", dateTimeFormatter.format(finishDate.getTime()));
-        data.put("projectStart", dateTimeFormatter.format(getProjectStartDate()));
+        data.put("projectStart", dateTimeFormatter.format(finishedIssueListClass.getProjectStartDate()));
         data.put("openIssueList", openIssueListClass.getOpenIssueList());
         data.put("queryLog", issueListCreator.getQueryLog());
 
@@ -140,7 +124,7 @@ public class EstimationCalculator {
         costMap = getMapOfEffortsFromIssueListForCustomField(openIssueList, estimationField);
         smlMap = getMapOfEffortsFromIssueListForCustomField(openIssueList, estimationSMLField);
 
-        calculateTicketsPerMonth(projectOrFilterId, isFilter, getProjectStartDate());
+        calculateTicketsPerMonth(projectOrFilterId, isFilter, finishedIssueListClass.getProjectStartDate());
 
         return prepareMap();
     }

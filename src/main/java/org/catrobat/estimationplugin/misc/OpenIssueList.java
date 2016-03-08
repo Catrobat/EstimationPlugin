@@ -10,10 +10,6 @@ import java.util.*;
 
 public class OpenIssueList {
 
-    public List<OpenIssue> getOpenIssueList() {
-        return openIssueList;
-    }
-
     private List<OpenIssue> openIssueList;
 
     private long defaultEstimate;
@@ -26,6 +22,10 @@ public class OpenIssueList {
         }
 
         defaultEstimate = 5;
+    }
+
+    public List<OpenIssue> getOpenIssueList() {
+        return openIssueList;
     }
 
     public long getOpenIssueCount() {

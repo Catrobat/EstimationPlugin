@@ -40,4 +40,8 @@ public class DateHelper {
         calendar.add(Calendar.MONTH, 1);
         return getEndOfMonth(calendar.getTime());
     }
+
+    public static long convertMillisToDays(long millis) {
+        return millis/(1000 * 60 * 60 * 24);
+    }
 }

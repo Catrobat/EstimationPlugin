@@ -2,6 +2,7 @@ package org.catrobat.estimationplugin.misc;
 
 import com.atlassian.jira.issue.Issue;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
+import org.catrobat.estimationplugin.helper.DateHelper;
 
 import java.util.Date;
 import java.util.LinkedList;
@@ -32,11 +33,6 @@ public class FinishedIssueList {
         return summaryStatistics;
     }
 
-    // TODO: change to helper
-    private double convertMillisToDays(double millis) {
-        return millis/(1000 * 60 * 60 * 24);
-    }
-
     // TODO: change to be based on date put into backlog
     public long getDaysTicketsWhereOpened() {
         List<FinishedIssue> issues = finishedIssueList;
@@ -45,21 +41,16 @@ public class FinishedIssueList {
         while (issueIterator.hasNext()) {
             FinishedIssue currentIssue = issueIterator.next();
             daysOpened += currentIssue.getWorkDuration();
-            /*if (created != null && resolved != null) {
-                long diffMilliseconds = resolved.getTime() - created.getTime();
-                long days = diffMilliseconds / (1000 * 60 * 60 * 24);
-                daysOpened += days;
-            }*/
         }
-        return (long)convertMillisToDays(daysOpened);
+        return DateHelper.convertMillisToDays(daysOpened);
     }
 
-    public long getProjectStartInMillis() {
+    public Date getProjectStartDate() {
         List<FinishedIssue> issues = finishedIssueList;
         ListIterator<FinishedIssue> issueIterator = issues.listIterator();
         if (!issueIterator.hasNext()) {
             // TODO: make sure you never come here
-            return (new Date()).getTime();
+            return new Date();
         }
         long minCreated = issueIterator.next().getCreated().getTime();
         while (issueIterator.hasNext()) {
@@ -69,6 +60,13 @@ public class FinishedIssueList {
                 minCreated = created;
             }
         }
-        return minCreated;
+        return new Date(minCreated);
+    }
+
+    public long getProjectDurationFromStart() {
+        long start = getProjectStartDate().getTime();
+        Date today = new Date();
+        long days = (today.getTime() - start)/(1000 * 60 * 60 * 24);
+        return  days;
     }
 }

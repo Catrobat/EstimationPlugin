@@ -11,18 +11,8 @@ import java.util.Date;
 public class OpenIssue {
 
     private Issue issue;
-    private long cost;
 
     private String estimation;
-
-    public String getEstimationSML() {
-        return estimationSML;
-    }
-
-    public String getEstimation() {
-        return estimation;
-    }
-
     private String estimationSML;
 
     private static CustomField estimationField;
@@ -47,5 +37,9 @@ public class OpenIssue {
         if (issue.getCustomFieldValue(OpenIssue.estimationSMLField) != null && issue.getCustomFieldValue(OpenIssue.estimationSMLField) instanceof Option) {
             estimationSML = ((Option) issue.getCustomFieldValue(estimationSMLField)).getValue();
         }
+    }
+
+    public String getEstimation() {
+        return estimation;
     }
 }

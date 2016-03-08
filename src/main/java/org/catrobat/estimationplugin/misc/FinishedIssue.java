@@ -14,18 +14,9 @@ public class FinishedIssue {
 
     private Issue issue;
 
-    public Date getCreated() {
-        return created;
-    }
-
     private Date created;
     private Date workStarted;
     private Date workFinished;
-
-    public long getWorkDuration() {
-        return workDuration;
-    }
-
     private long workDuration;
 
     public FinishedIssue(Issue issue) {
@@ -57,5 +48,13 @@ public class FinishedIssue {
         }
         // TODO: this is ugly fix, so items which where never put into backlog, have 0 days worked on
         return issue.getResolutionDate();
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public long getWorkDuration() {
+        return workDuration;
     }
 }
