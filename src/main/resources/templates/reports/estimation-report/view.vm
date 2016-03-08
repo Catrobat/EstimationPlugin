@@ -27,6 +27,8 @@ SML Map values: $smlMap
 Debug
 </h5>
 <p>
+$avgDaysOpened == $avgDaysOpenedNew
+</p>
 Project Start Date: $projectStart
 </p>
 <p>
