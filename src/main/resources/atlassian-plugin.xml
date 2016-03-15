@@ -167,6 +167,13 @@
             <values class="com.atlassian.jira.issue.statistics.FilterStatisticsValuesGenerator" />
         </property>
       -->
+      <property>
+        <key>filterpool</key>
+        <name>estimation-report.pools</name>
+        <description>estimation-report.pools.description</description>
+        <type>multiselect</type>
+        <values class="org.catrobat.estimationplugin.valuegenerator.WorkflowPoolValuesGenerator" />
+      </property>
     </properties>
   </report>
   <report name="Estimation Plugin Backward" i18n-name-key="estimation-plugin-backward.name" key="estimation-plugin-backward" class="org.catrobat.estimationplugin.reports.EstimationPluginBackward">

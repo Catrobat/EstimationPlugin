@@ -20,7 +20,6 @@ public class OpenIssueList {
             OpenIssue openIssue = new OpenIssue(issue);
             openIssueList.add(openIssue);
         }
-
         defaultEstimate = 5;
     }
 

@@ -27,5 +27,4 @@ public class EstimationReportTest {
         throw new Exception("EstimationReport has no tests!");
 
     }
-
 }

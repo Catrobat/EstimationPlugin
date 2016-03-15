@@ -40,6 +40,15 @@ Query: $queryLog
 <p>
 Open Issue List: $openIssueList
 </p>
+<p>
+Selected pools are: $filterpool.
+</p>
+<p>
+possible pools are: $status.
+</p>
+<p>
+stus Categorys are: $statusCategory.
+</p>
 <h5>
 Based on Average Duration
 </h5>

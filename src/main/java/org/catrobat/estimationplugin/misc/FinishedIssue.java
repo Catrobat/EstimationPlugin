@@ -4,6 +4,7 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.changehistory.ChangeHistory;
 import com.atlassian.jira.issue.changehistory.ChangeHistoryManager;
+import com.atlassian.jira.issue.search.constants.SystemSearchConstants;
 import org.ofbiz.core.entity.GenericValue;
 
 import java.sql.Timestamp;
@@ -21,14 +22,21 @@ public class FinishedIssue {
 
     public FinishedIssue(Issue issue) {
         this.issue = issue;
-        extractData();
+        try
+        {
+            extractData();
+        }
+        catch(Exception e)
+        {
+           System.out.println(e.getMessage());
+        }
     }
 
-    private void extractData() {
-        created = new Date(issue.getCreated().getTime());
-        workStarted = new Date(getDatePutIntoBacklog(issue).getTime());
-        workFinished = new Date(issue.getResolutionDate().getTime());
-        workDuration = workFinished.getTime() - workStarted.getTime();
+    private void extractData() throws Exception {
+            created = new Date(issue.getCreated().getTime());
+            workStarted = new Date(getDatePutIntoBacklog(issue).getTime());
+            workFinished = new Date(issue.getResolutionDate().getTime());
+            workDuration = workFinished.getTime() - workStarted.getTime();
     }
 
     private Timestamp getDatePutIntoBacklog(Issue issue) {

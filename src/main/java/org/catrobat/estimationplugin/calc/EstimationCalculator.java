@@ -142,4 +142,14 @@ public class EstimationCalculator {
         }
         return map;
     }
+
+    public List<String> getOpenIssuesStatus() {
+        return openIssuesStatus;
+    }
+
+    public void setOpenIssuesStatus(List<String> selected_open_issue_status)
+    {
+        openIssuesStatus.clear();
+        openIssuesStatus = selected_open_issue_status;
+    }
 }

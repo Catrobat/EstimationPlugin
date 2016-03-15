@@ -1,7 +1,9 @@
 package org.catrobat.estimationplugin.reports;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.datetime.DateTimeFormatterFactory;
 import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.status.Status;
 import com.atlassian.jira.plugin.report.impl.AbstractReport;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.action.ProjectActionSupport;
@@ -9,10 +11,13 @@ import com.atlassian.jira.issue.search.SearchProvider;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.util.I18nHelper;
 import com.atlassian.jira.util.ParameterUtils;
+import com.atlassian.jira.workflow.JiraWorkflow;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.apache.log4j.Logger;
 import org.catrobat.estimationplugin.calc.EstimationCalculator;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class EstimationReport extends AbstractReport {
@@ -45,6 +50,10 @@ public class EstimationReport extends AbstractReport {
         EstimationCalculator estimationCalculator = new EstimationCalculator(projectManager, searchProvider, remoteUser, formatterFactory);
         Map<String, Object> velocityParams;
 
+        String[] filterpool_array = ParameterUtils.getStringArrayParam(params,"filterpool");
+        List<String> filterpool = ParameterUtils.getListFromStringArray(filterpool_array);
+        estimationCalculator.setOpenIssuesStatus(filterpool);
+
         if (filterOrProjectId.startsWith("project-")) {
             projectId = Long.parseLong(filterOrProjectId.replaceFirst("project-", ""));
             velocityParams = estimationCalculator.calculateOutputParams(projectId, false);
@@ -58,6 +67,15 @@ public class EstimationReport extends AbstractReport {
             throw new AssertionError("neither project nor filter id");
         }
 
+        JiraWorkflow catrob = ComponentAccessor.getWorkflowManager().getWorkflow("Catrobat Workflow");
+        List<Status> status = catrob.getLinkedStatusObjects();
+        ArrayList<String> status_list = new ArrayList<String>();
+        ArrayList<String> statusCategory = new ArrayList<String>();
+        for(Status st: status) {
+            status_list.add(st.getSimpleStatus().getName());
+            statusCategory.add(st.getStatusCategory().getKey());
+        }
+
         Long numprog = ParameterUtils.getLongParam(params, "numprog");
 
         velocityParams.put("projectName", projectManager.getProjectObj(projectId).getName());
@@ -66,6 +84,9 @@ public class EstimationReport extends AbstractReport {
         velocityParams.put("comparisonMethod", "STANDARD");
         velocityParams.put("probability", new Float(0));
         velocityParams.put("deviation", new Float(0));
+        velocityParams.put("filterpool", filterpool.toString());
+        velocityParams.put("status",status_list.toString() );
+        velocityParams.put("statusCategory", statusCategory.toString());
 
         return descriptor.getHtml("view", velocityParams);
     }
