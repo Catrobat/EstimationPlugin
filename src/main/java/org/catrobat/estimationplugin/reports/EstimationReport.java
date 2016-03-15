@@ -12,6 +12,7 @@ import com.atlassian.jira.util.ParameterUtils;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.apache.log4j.Logger;
 import org.catrobat.estimationplugin.calc.EstimationCalculator;
+import org.catrobat.estimationplugin.helper.GroupHelper;
 
 import java.util.Map;
 
@@ -42,6 +43,13 @@ public class EstimationReport extends AbstractReport {
         Long filterId = new Long(0);
         String filterOrProjectId = ParameterUtils.getStringParam(params, "projectid");
 
+        Long numprog = ParameterUtils.getLongParam(params, "numprog");
+
+        String userGroup = ParameterUtils.getStringParam(params, "usergroup");
+        if (userGroup != "none") {
+            numprog = (long) GroupHelper.getCountOfGroup(userGroup);
+        }
+
         EstimationCalculator estimationCalculator = new EstimationCalculator(projectManager, searchProvider, remoteUser, formatterFactory);
         Map<String, Object> velocityParams;
 
@@ -58,8 +66,6 @@ public class EstimationReport extends AbstractReport {
             throw new AssertionError("neither project nor filter id");
         }
 
-        Long numprog = ParameterUtils.getLongParam(params, "numprog");
-
         velocityParams.put("projectName", projectManager.getProjectObj(projectId).getName());
         velocityParams.put("filter", "TESTVAL");
         velocityParams.put("countMember", numprog);
@@ -73,10 +79,14 @@ public class EstimationReport extends AbstractReport {
     public void validate(ProjectActionSupport action, Map params) {
         Long numprog = ParameterUtils.getLongParam(params, "numprog");
         Long projectId = ParameterUtils.getLongParam(params, "selectedProjectId");
+        String userGroup = ParameterUtils.getStringParam(params, "usergroup");
 
         if (numprog == null || numprog.longValue() <= 0)
             action.addError("interval", action.getText("estimation-report.interval.invalid"));
         if (projectId == null)
             action.addError("selectedProjectId", action.getText("estimation-report.projectid.invalid"));
+        if (userGroup != "none" && GroupHelper.getCountOfGroup(userGroup) < 1)
+            action.addError("usergroup", "error");
+        //TODO: check wether user group contains members
     }
 }
