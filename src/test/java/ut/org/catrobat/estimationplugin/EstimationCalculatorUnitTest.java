@@ -6,7 +6,6 @@ import com.atlassian.jira.datetime.DateTimeFormatterFactory;
 import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.fields.CustomField;
-import com.atlassian.jira.issue.search.SearchProvider;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.ApplicationUser;
 import org.catrobat.estimationplugin.calc.EstimationCalculator;
@@ -26,7 +25,6 @@ public class EstimationCalculatorUnitTest {
     private EstimationCalculator calc;
 
     private ProjectManager manager;
-    private SearchProvider provider;
     private ApplicationUser user;
     private DateTimeFormatterFactory date;
     private DateTimeFormatter formater;
@@ -54,6 +52,11 @@ public class EstimationCalculatorUnitTest {
 
         CustomFieldManager custmanager = mock(CustomFieldManager.class);
         calc = new EstimationCalculator(manager,provider,user,date);
+
+    @Before
+    public void setUp() {
+        //estimationCalculator = Mockito.mock(EstimationCalculator.class);
+        //Mockito.when(estimationCalculator)
     }
 
     @Test

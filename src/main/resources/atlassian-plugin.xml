@@ -55,6 +55,13 @@
         <default>1</default>
       </property>
       <property>
+        <key>usergroup</key>
+        <name>estimation-report.usergroup</name>
+        <description>estimation-report.usergroup.description</description>
+        <type>select</type>
+        <values class="org.catrobat.estimationplugin.valuegenerator.GroupValuesGenerator" />
+      </property>
+      <property>
         <key>ldap</key>
         <name>estimation-report.ldap</name>
         <description>estimation-report.ldap.description</description>

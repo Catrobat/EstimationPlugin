@@ -22,7 +22,6 @@ import com.atlassian.templaterenderer.TemplateRenderer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
