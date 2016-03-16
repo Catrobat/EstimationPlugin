@@ -1,6 +1,6 @@
 package it.org.catrobat.estimationplugin;
 
-import com.atlassian.jira.issue.search.SearchProvider;
+import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.plugins.osgi.test.AtlassianPluginsTestRunner;
@@ -10,15 +10,15 @@ import org.junit.runner.RunWith;
 public class EstimationCalculatorWiredTest {
 
     private final ProjectManager projectManager;
-    private final SearchProvider searchProvider;
+    private final SearchService searchService;
     private final ApplicationUser user;
 
 
-    public EstimationCalculatorWiredTest(ProjectManager projectManager, SearchProvider searchProvider,
+    public EstimationCalculatorWiredTest(ProjectManager projectManager, SearchService searchService,
                                 ApplicationUser user)
     {
         this.projectManager = projectManager;
-        this.searchProvider = searchProvider;
+        this.searchService = searchService;
         this.user = user;
     }
 }
