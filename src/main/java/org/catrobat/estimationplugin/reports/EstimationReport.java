@@ -5,30 +5,31 @@ import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.plugin.report.impl.AbstractReport;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.action.ProjectActionSupport;
-import com.atlassian.jira.issue.search.SearchProvider;
+import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.util.I18nHelper;
 import com.atlassian.jira.util.ParameterUtils;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import org.apache.log4j.Logger;
 import org.catrobat.estimationplugin.calc.EstimationCalculator;
+import org.catrobat.estimationplugin.helper.GroupHelper;
 
 import java.util.Map;
 
 public class EstimationReport extends AbstractReport {
 
     private static final Logger log = Logger.getLogger(EstimationReport.class);
-    private final SearchProvider searchProvider;
+    private final SearchService searchService;
     private final DateTimeFormatterFactory formatterFactory;
     private final ProjectManager projectManager;
     private final IssueManager issueManager;
     private final I18nHelper helper;
     private final PluginSettingsFactory pluginSettingsFactory;
 
-    public EstimationReport(SearchProvider searchProvider, ProjectManager projectManager, I18nHelper helper,
+    public EstimationReport(SearchService searchService, ProjectManager projectManager, I18nHelper helper,
                             IssueManager issueManager, DateTimeFormatterFactory formatterFactory,
                             PluginSettingsFactory pluginSettingsFactory) {
-        this.searchProvider = searchProvider;
+        this.searchService = searchService;
         this.projectManager = projectManager;
         this.helper = helper;
         this.issueManager = issueManager;
@@ -42,7 +43,14 @@ public class EstimationReport extends AbstractReport {
         Long filterId = new Long(0);
         String filterOrProjectId = ParameterUtils.getStringParam(params, "projectid");
 
-        EstimationCalculator estimationCalculator = new EstimationCalculator(projectManager, searchProvider, remoteUser, formatterFactory);
+        Long numprog = ParameterUtils.getLongParam(params, "numprog");
+
+        String userGroup = ParameterUtils.getStringParam(params, "usergroup");
+        if (userGroup != "none") {
+            numprog = (long) GroupHelper.getCountOfGroup(userGroup);
+        }
+
+        EstimationCalculator estimationCalculator = new EstimationCalculator(projectManager, searchService, remoteUser, formatterFactory);
         Map<String, Object> velocityParams;
 
         if (filterOrProjectId.startsWith("project-")) {
@@ -58,8 +66,6 @@ public class EstimationReport extends AbstractReport {
             throw new AssertionError("neither project nor filter id");
         }
 
-        Long numprog = ParameterUtils.getLongParam(params, "numprog");
-
         velocityParams.put("projectName", projectManager.getProjectObj(projectId).getName());
         velocityParams.put("filter", "TESTVAL");
         velocityParams.put("countMember", numprog);
@@ -73,10 +79,14 @@ public class EstimationReport extends AbstractReport {
     public void validate(ProjectActionSupport action, Map params) {
         Long numprog = ParameterUtils.getLongParam(params, "numprog");
         Long projectId = ParameterUtils.getLongParam(params, "selectedProjectId");
+        String userGroup = ParameterUtils.getStringParam(params, "usergroup");
 
         if (numprog == null || numprog.longValue() <= 0)
             action.addError("interval", action.getText("estimation-report.interval.invalid"));
         if (projectId == null)
             action.addError("selectedProjectId", action.getText("estimation-report.projectid.invalid"));
+        if (userGroup != "none" && GroupHelper.getCountOfGroup(userGroup) < 1)
+            action.addError("usergroup", "error");
+        //TODO: check wether user group contains members
     }
 }

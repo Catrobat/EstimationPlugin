@@ -11,7 +11,7 @@ public class EstimationCalculatorUnitTest {
 
     @Before
     public void setUp() {
-        estimationCalculator = Mockito.mock(EstimationCalculator.class);
+        //estimationCalculator = Mockito.mock(EstimationCalculator.class);
         //Mockito.when(estimationCalculator)
     }
 
