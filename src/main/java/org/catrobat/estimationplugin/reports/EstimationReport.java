@@ -38,7 +38,7 @@ public class EstimationReport extends AbstractReport {
     }
 
     public String generateReportHtml(ProjectActionSupport action, Map params) throws Exception {
-        ApplicationUser remoteUser = action.getLoggedInApplicationUser();
+        ApplicationUser remoteUser = action.getLoggedInUser();
         Long projectId = ParameterUtils.getLongParam(params, "selectedProjectId");
         Long filterId = new Long(0);
         String filterOrProjectId = ParameterUtils.getStringParam(params, "projectid");
