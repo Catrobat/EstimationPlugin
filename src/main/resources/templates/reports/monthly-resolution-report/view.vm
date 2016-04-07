@@ -2,6 +2,8 @@
 
 <h1>$i18n.getText('monthly-resolution-report.name')</h1>
 
+<p>From $startdate to $enddate</p>
+
 <canvas id="myChart" width="1200" height="400"></canvas>
 
 <script>

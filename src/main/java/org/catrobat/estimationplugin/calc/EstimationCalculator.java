@@ -12,7 +12,6 @@ import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchProvider;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.ApplicationUser;
-import com.google.gson.Gson;
 import org.catrobat.estimationplugin.helper.DateHelper;
 import org.catrobat.estimationplugin.jql.IssueListCreator;
 import org.catrobat.estimationplugin.misc.FinishedIssueList;
@@ -27,9 +26,6 @@ public class EstimationCalculator {
     private final DateTimeFormatter dateTimeFormatter;
 
     private double ticketsPerDay;
-    private List<String> ticketsPerMonth = new LinkedList<String>();
-    private List<String> ticketsPerMonthLabels = new LinkedList<>();
-    private List<Long> ticketsPerMonthCount = new LinkedList<>();
     private double averageTicketDurationDays;
 
     private List<String> openIssuesStatus = new ArrayList<String>();
@@ -63,25 +59,6 @@ public class EstimationCalculator {
         CustomFieldManager customFieldManager = ComponentAccessor.getCustomFieldManager();
         estimationField = customFieldManager.getCustomFieldObjectByName("Estimated Effort");
         estimationSMLField = customFieldManager.getCustomFieldObjectByName("Effort");
-    }
-
-    public void calculateTicketsPerMonth(Long projectId, boolean isFilter, Date startDate) throws SearchException {
-        Date today = new Date();
-        Date curStartDate = DateHelper.getStartOfMonth(startDate);
-        Date curEndDate = DateHelper.getEndOfMonth(startDate);
-        while (curStartDate.getTime() <  today.getTime()) {
-            long ticketRate = issueListCreator.getMonthlyResolution(projectId, finishedIssuesStatus,
-                    isFilter, curStartDate, curEndDate);
-            String str = dateTimeFormatter.format(curStartDate);
-            str = str.substring(0, str.length()-3);
-            //str = str.replace('-', 'o');
-            ticketsPerMonth.add(dateTimeFormatter.format(curStartDate) + ": " + ticketRate);
-
-            ticketsPerMonthLabels.add(str);
-            ticketsPerMonthCount.add(ticketRate);
-            curStartDate = DateHelper.getStartOfNextMonth(curStartDate);
-            curEndDate = DateHelper.getEndOfNextMonth(curEndDate);
-        }
     }
 
     public void calculateTicketsPerDay() {
@@ -120,23 +97,6 @@ public class EstimationCalculator {
         data.put("openIssueList", openIssueListClass.getOpenIssueList());
         data.put("queryLog", issueListCreator.getQueryLog());
 
-        data.put("ticketRateMonthly", ticketsPerMonth.toString());
-
-        return data;
-    }
-
-    public Map<String, Object> getTicketsPerMonth(Long projectOrFilterId, boolean isFilter) throws SearchException {
-        List<Issue> finishedIssueList = issueListCreator.getIssueListForStatus(projectOrFilterId, finishedIssuesStatus, isFilter);
-        finishedIssueListClass = new FinishedIssueList(finishedIssueList);
-        calculateTicketsPerMonth(projectOrFilterId, isFilter, finishedIssueListClass.getProjectStartDate());
-        Map<String, Object> data = new HashMap<String, Object>();
-        data.put("ticketsPerMonthList", ticketsPerMonth);
-
-        //String json = "{";
-        String json = new Gson().toJson(ticketsPerMonthLabels);
-        //json += "}";
-        data.put("ticketsPerMonthLabels", json);
-        data.put("ticketsPerMonthCount", ticketsPerMonthCount);
         return data;
     }
 
@@ -147,8 +107,6 @@ public class EstimationCalculator {
         openIssueListClass = new OpenIssueList(openIssueList);
         costMap = getMapOfEffortsFromIssueListForCustomField(openIssueList, estimationField);
         smlMap = getMapOfEffortsFromIssueListForCustomField(openIssueList, estimationSMLField);
-
-        calculateTicketsPerMonth(projectOrFilterId, isFilter, finishedIssueListClass.getProjectStartDate());
 
         return prepareMap();
     }
