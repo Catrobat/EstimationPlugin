@@ -2,18 +2,6 @@
 
 <h1>$i18n.getText('monthly-resolution-report.name')</h1>
 
-<p>
-$ticketsPerMonthList
-</p>
-
-<p>l
-$ticketsPerMonthLabels
-</p>
-
-<p>
-$ticketsPerMonthCount
-</p>
-
 <canvas id="myChart" width="1200" height="400"></canvas>
 
 <script>

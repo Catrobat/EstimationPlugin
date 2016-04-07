@@ -1,6 +1,5 @@
 package org.catrobat.estimationplugin.calc;
 
-import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.datetime.DateTimeFormatter;
 import com.atlassian.jira.datetime.DateTimeFormatterFactory;
@@ -10,7 +9,7 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.customfields.option.Option;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.search.SearchException;
-import com.atlassian.jira.bc.issue.search.SearchService;
+import com.atlassian.jira.issue.search.SearchProvider;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.google.gson.Gson;
@@ -46,10 +45,10 @@ public class EstimationCalculator {
     private Map<String, Long> costMap; //debug only
     private Map<String, Long> smlMap; //debug only
 
-    public EstimationCalculator(ProjectManager projectManager, SearchService searchService, ApplicationUser user,
+    public EstimationCalculator(ProjectManager projectManager, SearchProvider searchProvider, ApplicationUser user,
                                 DateTimeFormatterFactory formatterFactory) {
         this.projectManager = projectManager;
-        issueListCreator = new IssueListCreator(searchService, user);
+        issueListCreator = new IssueListCreator(searchProvider, user);
         this.dateTimeFormatter = formatterFactory.formatter().withStyle(DateTimeStyle.ISO_8601_DATE);
 
         loadSettings();

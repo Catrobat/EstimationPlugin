@@ -2,7 +2,7 @@ package org.catrobat.estimationplugin.jql;
 
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.search.SearchException;
-import com.atlassian.jira.bc.issue.search.SearchService;
+import com.atlassian.jira.issue.search.SearchProvider;
 import com.atlassian.jira.issue.search.SearchResults;
 import com.atlassian.jira.jql.builder.JqlClauseBuilder;
 import com.atlassian.jira.jql.builder.JqlQueryBuilder;
@@ -18,13 +18,13 @@ import java.util.ListIterator;
 public class IssueListCreator {
 
 
-    private final SearchService searchService;
+    private final SearchProvider searchProvider;
     private final ApplicationUser user;
 
     private List<Query> queryLog = new LinkedList<Query>();
 
-    public IssueListCreator(SearchService searchService, ApplicationUser user) {
-        this.searchService = searchService;
+    public IssueListCreator(SearchProvider searchProvider, ApplicationUser user) {
+        this.searchProvider = searchProvider;
         this.user = user;
     }
 
@@ -63,12 +63,12 @@ public class IssueListCreator {
 
     public long getMonthlyResolution(Long projectOrFilterId, List<String> status, boolean isFilter, Date startDate, Date endDate) throws SearchException {
         Query query = getQueryWithIssueStatusResolvedBetween(projectOrFilterId, status, isFilter, startDate, endDate);
-        return searchService.searchCount(user, query);
+        return searchProvider.searchCount(query, user);
     }
 
     public List<Issue> getIssueListForStatus(Long projectOrFilterId, List<String> status, boolean isFilter) throws SearchException {
         Query query = getQueryWithIssueStatus(projectOrFilterId, status, isFilter);
-        SearchResults searchResults = searchService.search(user, query, PagerFilter.getUnlimitedFilter());
+        SearchResults searchResults = searchProvider.search(query, user, PagerFilter.getUnlimitedFilter());
         List<Issue> issueList = searchResults.getIssues();
         return  issueList;
     }

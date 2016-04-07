@@ -1,8 +1,8 @@
 package org.catrobat.estimationplugin.reports;
 
-import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.datetime.DateTimeFormatterFactory;
 import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.search.SearchProvider;
 import com.atlassian.jira.plugin.report.impl.AbstractReport;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.ApplicationUser;
@@ -18,17 +18,17 @@ import java.util.Map;
 public class MonthlyResolutionReport extends AbstractReport {
 
     private static final Logger log = Logger.getLogger(EstimationReport.class);
-    private final SearchService searchService;
+    private final SearchProvider searchProvider;
     private final DateTimeFormatterFactory formatterFactory;
     private final ProjectManager projectManager;
     private final IssueManager issueManager;
     private final I18nHelper helper;
     private final PluginSettingsFactory pluginSettingsFactory;
 
-    public MonthlyResolutionReport(SearchService searchService, ProjectManager projectManager, I18nHelper helper,
+    public MonthlyResolutionReport(SearchProvider searchProvider, ProjectManager projectManager, I18nHelper helper,
                             IssueManager issueManager, DateTimeFormatterFactory formatterFactory,
                             PluginSettingsFactory pluginSettingsFactory) {
-        this.searchService = searchService;
+        this.searchProvider = searchProvider;
         this.projectManager = projectManager;
         this.helper = helper;
         this.issueManager = issueManager;
@@ -37,11 +37,11 @@ public class MonthlyResolutionReport extends AbstractReport {
     }
 
     public String generateReportHtml(ProjectActionSupport action, Map params) throws Exception {
-        ApplicationUser remoteUser = action.getLoggedInUser();
+        ApplicationUser remoteUser = action.getLoggedInApplicationUser();
         Long projectId = ParameterUtils.getLongParam(params, "selectedProjectId");
 
 
-        EstimationCalculator estimationCalculator = new EstimationCalculator(projectManager, searchService, remoteUser, formatterFactory);
+        EstimationCalculator estimationCalculator = new EstimationCalculator(projectManager, searchProvider, remoteUser, formatterFactory);
         Map<String, Object> velocityParams;
         velocityParams = estimationCalculator.getTicketsPerMonth(projectId, false);
 
