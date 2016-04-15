@@ -1,6 +1,5 @@
 package org.catrobat.estimationplugin.calc;
 
-import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.datetime.DateTimeFormatter;
 import com.atlassian.jira.datetime.DateTimeFormatterFactory;
@@ -10,7 +9,7 @@ import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.customfields.option.Option;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.search.SearchException;
-import com.atlassian.jira.bc.issue.search.SearchService;
+import com.atlassian.jira.issue.search.SearchProvider;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.user.ApplicationUser;
 import org.catrobat.estimationplugin.helper.DateHelper;
@@ -27,7 +26,6 @@ public class EstimationCalculator {
     private final DateTimeFormatter dateTimeFormatter;
 
     private double ticketsPerDay;
-    List<String> ticketsPerMonth = new LinkedList<String>();
     private double averageTicketDurationDays;
 
     private List<String> openIssuesStatus = new ArrayList<String>();
@@ -43,10 +41,10 @@ public class EstimationCalculator {
     private Map<String, Long> costMap; //debug only
     private Map<String, Long> smlMap; //debug only
 
-    public EstimationCalculator(ProjectManager projectManager, SearchService searchService, ApplicationUser user,
+    public EstimationCalculator(ProjectManager projectManager, SearchProvider searchProvider, ApplicationUser user,
                                 DateTimeFormatterFactory formatterFactory) {
         this.projectManager = projectManager;
-        issueListCreator = new IssueListCreator(searchService, user);
+        issueListCreator = new IssueListCreator(searchProvider, user);
         this.dateTimeFormatter = formatterFactory.formatter().withStyle(DateTimeStyle.ISO_8601_DATE);
 
         loadSettings();
@@ -61,19 +59,6 @@ public class EstimationCalculator {
         CustomFieldManager customFieldManager = ComponentAccessor.getCustomFieldManager();
         estimationField = customFieldManager.getCustomFieldObjectByName("Estimated Effort");
         estimationSMLField = customFieldManager.getCustomFieldObjectByName("Effort");
-    }
-
-    public void calculateTicketsPerMonth(Long projectId, boolean isFilter, Date startDate) throws SearchException {
-        Date today = new Date();
-        Date curStartDate = DateHelper.getStartOfMonth(startDate);
-        Date curEndDate = DateHelper.getEndOfMonth(startDate);
-        while (curStartDate.getTime() <  today.getTime()) {
-            long ticketRate = issueListCreator.getMonthlyResolution(projectId, finishedIssuesStatus,
-                    isFilter, curStartDate, curEndDate);
-            ticketsPerMonth.add(dateTimeFormatter.format(curStartDate) + ": " + ticketRate);
-            curStartDate = DateHelper.getStartOfNextMonth(curStartDate);
-            curEndDate = DateHelper.getEndOfNextMonth(curEndDate);
-        }
     }
 
     public void calculateTicketsPerDay() {
@@ -112,8 +97,6 @@ public class EstimationCalculator {
         data.put("openIssueList", openIssueListClass.getOpenIssueList());
         data.put("queryLog", issueListCreator.getQueryLog());
 
-        data.put("ticketRateMonthly", ticketsPerMonth.toString());
-
         return data;
     }
 
@@ -124,8 +107,6 @@ public class EstimationCalculator {
         openIssueListClass = new OpenIssueList(openIssueList);
         costMap = getMapOfEffortsFromIssueListForCustomField(openIssueList, estimationField);
         smlMap = getMapOfEffortsFromIssueListForCustomField(openIssueList, estimationSMLField);
-
-        calculateTicketsPerMonth(projectOrFilterId, isFilter, finishedIssueListClass.getProjectStartDate());
 
         return prepareMap();
     }

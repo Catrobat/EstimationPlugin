@@ -32,9 +32,6 @@ $avgDaysOpened == $avgDaysOpenedNew
 Project Start Date: $projectStart
 </p>
 <p>
-Monthly ticket rate: $ticketRateMonthly
-</p>
-<p>
 Query: $queryLog
 </p>
 <p>

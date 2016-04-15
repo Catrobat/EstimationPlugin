@@ -59,7 +59,7 @@
         <name>estimation-report.usergroup</name>
         <description>estimation-report.usergroup.description</description>
         <type>select</type>
-        <values class="org.catrobat.estimationplugin.valuegenerator.GroupValuesGenerator" />
+        <values class="org.catrobat.estimationplugin.valuegenerator.GroupValuesGenerator"/>
       </property>
       <property>
         <key>ldap</key>
@@ -111,19 +111,19 @@
         <description>estimation-report.basedon.ticketsorcost</description>
         <type>select</type>
         <values>
-                <value>
-                    <key>cost</key>
-                    <value>Cost</value>
-                </value>
-                <value>
-                    <key>costsml</key>
-                    <value>Cost (S/M/L)</value>
-                </value>
-                <value>
-                    <key>tickets</key>
-                    <value>Tickets</value>
-                </value>
-            </values>
+          <value>
+            <key>cost</key>
+            <value>Cost</value>
+          </value>
+          <value>
+            <key>costsml</key>
+            <value>Cost (S/M/L)</value>
+          </value>
+          <value>
+            <key>tickets</key>
+            <value>Tickets</value>
+          </value>
+        </values>
       </property>
       <!--<property>
         <key>studis</key>
@@ -180,7 +180,7 @@
     <description key="estimation-plugin-backward.description">The Estimation Plugin Backward Plugin</description>
     <resource name="view" type="velocity" location="/templates/reports/estimation-plugin-backward/view.vm"/>
     <resource name="i18n" type="i18n" location="EstimationPluginBackward"/>
-    <label key="estimation-plugin-backward.label"></label>
+    <label key="estimation-plugin-backward.label"/>
     <!-- the properties of this report which the user must select before running it -->
     <!-- Uncomment and edit properties...
     <properties>
@@ -200,5 +200,31 @@
         </property>
     </properties>
     -->
+  </report>
+  <report name="Monthly Resolution Report" i18n-name-key="monthly-resolution-report.name" key="monthly-resolution-report" class="org.catrobat.estimationplugin.reports.MonthlyResolutionReport">
+    <description key="monthly-resolution-report.description">The Monthly Resolution Report Plugin</description>
+    <resource name="view" type="velocity" location="/templates/reports/monthly-resolution-report/view.vm"/>
+    <resource name="i18n" type="i18n" location="MonthlyResolutionReport"/>
+    <label key="monthly-resolution-report.label"></label>
+    <properties>
+      <property>
+        <key>projectid</key>
+        <name>estimation-report.projectid.name</name>
+        <description>estimation-report.projectid.description</description>
+        <type>filterprojectpicker</type>
+      </property>
+      <property>
+        <key>startDate</key>
+        <name>monthly-resoultion-report.startdate</name>
+        <description>monthly-resoultion-report.startdate.description</description>
+        <type>date</type>
+      </property>
+      <property>
+        <key>endDate</key>
+        <name>monthly-resoultion-report.enddate</name>
+        <description>monthly-resoultion-report.enddate.description</description>
+        <type>date</type>
+      </property>
+    </properties>
   </report>
 </atlassian-plugin>
